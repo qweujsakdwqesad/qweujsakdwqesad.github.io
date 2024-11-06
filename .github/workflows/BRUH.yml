@@ -11,20 +11,29 @@ jobs:
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
-      with:  
+      with:
         node-version: '20.x'
         cache: 'npm'
 
-    - name: Install npm dependencies
+    - name: Install dependencies
       run: npm install
 
-    - name: Start Serveo Tunnel
+    - name: Install Expose
       run: |
-        # Start Serveo tunnel to forward port 3000 (or your app's port) to a public URL
-        ssh -o StrictHostKeyChecking=no -R 80:localhost:3000 serveo.net & 
-        sleep 5  # Wait for the tunnel to initialize
+        curl -sL https://github.com/expose/expose/releases/download/v1.0.0/expose-linux-amd64-v1.0.0.tar.gz | tar xz
+        sudo mv expose /usr/local/bin/
 
-    - name: Start server after tunnel
+    
+
+    - name: Start Expose
       run: |
-        # Run the server after the tunnel has been set up
-        node server.js
+        expose start --port 3000
+        sleep 5
+
+    - name: Get Expose URL
+      run: |
+        curl http://localhost:4040
+
+    - name: Start Server
+      run: |
+          nohup node server.js &
