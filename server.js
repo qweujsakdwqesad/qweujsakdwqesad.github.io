@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-const PORT = 1000;
+const PORT = 3000;
 
 app.use(bodyParser.json());
 app.use(express.static(__dirname)); // Serve static files from the root directory
