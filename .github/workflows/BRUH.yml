@@ -18,9 +18,11 @@ jobs:
     - name: Install npm dependencies
       run: npm install
 
-    - name: Get Public IP
-      run: curl https://ipinfo.io/ip
-
+    - name: Start Serveo Tunnel
+      run: |
+        # Start Serveo tunnel to forward port 3000 (or your app's port) to a public URL
+        ssh -o StrictHostKeyChecking=no -R 80:localhost:3000 serveo.net & 
+        sleep 5  # Wait for the tunnel to initialize
 
     - name: Start server after tunnel
       run: |
