@@ -184,5 +184,11 @@ var changes = [
   "date": "2024-09-09T22:30",
   "details": "Added first game this century!",
   "html": "<br><a href=\"slope2.html\" target=\"blank\">Slope 2!</a><h3 style=\"color:purple;font-weight:italic\">-shotgunshelly</h3>"
-}
+},
+  {
+    "summary": "Baldi's Basics Fixed and Added",
+    "date": "2024-11-20T10:30",
+    "details": "Baldi's Basics Fixed and Added!",
+    "html": "<br><a href=\"baldi.html\" target=\"blank\">Baldi's Basics</a><h3 style=\"color:gold;font-weight:bold\">-Maxey</h3>"
+  },
 ];
