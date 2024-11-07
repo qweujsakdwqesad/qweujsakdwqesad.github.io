@@ -26,18 +26,23 @@
             const passwordInput = document.getElementById("passwordInput").value;
             const messageElement = document.getElementById("message");
 
-            // Load passwords from name.json
-            const response = await fetch('name.json');
-            const passwords = await response.json();
+            try {
+                // Load passwords from name.json
+                const response = await fetch('name.json');
+                const passwords = await response.json();
 
-            // Validate credentials
-            if (passwords[nameInput] && passwords[nameInput] === passwordInput) {
-                // Store credentials in sessionStorage and redirect if valid
-                sessionStorage.setItem("name", nameInput);
-                sessionStorage.setItem("password", passwordInput);
-                window.location.href = "Website.html";
-            } else {
-                messageElement.textContent = "Incorrect name or password.";
+                // Validate credentials
+                if (passwords[nameInput] && passwords[nameInput] === passwordInput) {
+                    // Store credentials in sessionStorage and redirect
+                    sessionStorage.setItem("name", nameInput);
+                    sessionStorage.setItem("password", passwordInput);
+                    window.location.href = "Website.html";
+                } else {
+                    messageElement.textContent = "Incorrect name or password.";
+                }
+            } catch (error) {
+                console.error("Error loading name.json:", error);
+                messageElement.textContent = "Error loading credentials. Please try again later.";
             }
         }
     </script>
