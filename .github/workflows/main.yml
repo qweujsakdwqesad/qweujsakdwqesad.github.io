@@ -28,7 +28,9 @@ jobs:
       run: ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
   
     - name: Start server
-      run: node server.js
+      run: |
+        ngrok http --url=poodle-literate-forcibly.ngrok-free.app 3000
+        node server.js
 
     - name: Start ngrok
       run: |
