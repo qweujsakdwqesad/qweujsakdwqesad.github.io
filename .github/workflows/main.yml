@@ -29,7 +29,7 @@ jobs:
 
     - name: Start ngrok
       run: |
-        ngrok http 3000 &  # Replace 3000 with your server’s port if different
+        ngrok http --url=poodle-literate-forcibly.ngrok-free.app 3000
         sleep 5            # Give ngrok time to initialize
 
     - name: Display ngrok Public URL
