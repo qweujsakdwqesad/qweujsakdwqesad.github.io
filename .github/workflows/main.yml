@@ -26,6 +26,9 @@ jobs:
 
     - name: Configure ngrok with Authtoken
       run: ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+  
+    - name: Start server
+      run: node server.js
 
     - name: Start ngrok
       run: |
@@ -36,5 +39,4 @@ jobs:
       run: |
         curl -s localhost:4040/api/tunnels | jq '.tunnels[0].public_url'
 
-    - name: Start server
-      run: node server.js
+  
