@@ -26,25 +26,18 @@
             const passwordInput = document.getElementById("passwordInput").value;
             const messageElement = document.getElementById("message");
 
-            // Send the name and password to the server for validation
-            const response = await fetch('/check-name', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: nameInput, password: passwordInput })
-            });
+            // Load passwords from name.json
+            const response = await fetch('name.json');
+            const passwords = await response.json();
 
-            const result = await response.json();
-
-            if (result.access) {
-                // Store credentials in sessionStorage and redirect
+            // Validate credentials
+            if (passwords[nameInput] && passwords[nameInput] === passwordInput) {
+                // Store credentials in sessionStorage and redirect if valid
                 sessionStorage.setItem("name", nameInput);
                 sessionStorage.setItem("password", passwordInput);
                 window.location.href = "Website.html";
             } else {
-                messageElement.textContent = result.message;
-                if (!result.valid) {
-                    setTimeout(() => window.close(), 3000); // Close after 3 seconds if invalid
-                }
+                messageElement.textContent = "Incorrect name or password.";
             }
         }
     </script>
