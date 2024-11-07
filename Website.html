@@ -235,7 +235,25 @@
     <script>
       // Function to check if the user has access
      
-      
+              window.onload = async function() {
+            const name = sessionStorage.getItem("name");
+            const password = sessionStorage.getItem("password");
+
+            // Fetch the JSON file with valid credentials
+            const response = await fetch("name.json");
+            const validPasswords = await response.json();
+
+            // Check if credentials are missing or incorrect
+            if (!name || !password || validPasswords[name] !== password) {
+                alert("Hey! No bypassing security! 😡");
+                document.body.innerHTML = `<h1>nu uh, bad boy!</h1><p>You have been denied access to this page.</p>`;
+                return;
+            }
+
+            // Access granted
+            alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
+        }
+
 
       // Call the checkAccess function when the page is loaded
     
