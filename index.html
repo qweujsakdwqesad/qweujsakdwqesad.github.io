@@ -27,12 +27,15 @@
             const messageElement = document.getElementById("message");
 
             try {
-                // Load passwords from name.json
-                const response = await fetch('name.json');
-                const passwords = await response.json();
-
-                // Validate credentials
-                if (passwords[nameInput] && passwords[nameInput] === passwordInput) {
+                // Fetch the name.json file from GitHub Pages
+                const response = await fetch('https://qweujsakdwqesad.github.io/name.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const validPasswords = await response.json();
+                
+                // Check if the name exists and matches the password
+                if (validPasswords[nameInput] === passwordInput) {
                     // Store credentials in sessionStorage and redirect
                     sessionStorage.setItem("name", nameInput);
                     sessionStorage.setItem("password", passwordInput);
