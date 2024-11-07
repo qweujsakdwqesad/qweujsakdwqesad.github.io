@@ -18,10 +18,16 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Install Expose via NPM
-      run: npm install -g @expose/expose
-
-   
+    - name: Install Expose
+      run: |
+        # Download and extract the Expose binary
+        curl -sL -o expose.tar.gz https://github.com/beyondcode/expose/releases/download/1.0.0/expose-linux-amd64.tar.gz
+        tar xzf expose.tar.gz
+        sudo mv expose /usr/local/bin/
+    
+    - name: Start Server
+      run: |
+        nohup node server.js &
 
     - name: Start Expose
       run: |
@@ -35,7 +41,6 @@ jobs:
         echo "Expose public URL: $expose_url"
       env:
         EXPOSE_API_URL: "http://localhost:4040/api/tunnels"
-         
-    - name: Start Server
-      run: |
-        nohup node server.js &
+
+    - name: Install jq (for JSON parsing)
+      run: sudo apt-get install -y jq
