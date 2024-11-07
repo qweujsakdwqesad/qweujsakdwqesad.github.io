@@ -234,26 +234,29 @@
   <body>
     <script>
       // Function to check if the user has access
-     
-              window.onload = async function() {
+     window.onload = async function() {
             const name = sessionStorage.getItem("name");
             const password = sessionStorage.getItem("password");
 
-            // Fetch the JSON file with valid credentials
-            const response = await fetch("name.json");
-            const validPasswords = await response.json();
+            try {
+                // Fetch valid credentials from name.json
+                const response = await fetch("name.json");
+                const validPasswords = await response.json();
 
-            // Check if credentials are missing or incorrect
-            if (!name || !password || validPasswords[name] !== password) {
-                alert("Hey! No bypassing security! 😡");
-                document.body.innerHTML = `<h1>nu uh, bad boy!</h1><p>You have been denied access to this page.</p>`;
-                return;
+                // Check if credentials are missing or incorrect
+                if (!name || !password || validPasswords[name] !== password) {
+                    alert("Hey! No bypassing security! 😡");
+                    document.body.innerHTML = `<h1>nu uh, bad boy!</h1><p>You have been denied access to this page.</p>`;
+                    return;
+                }
+
+                // Access granted
+                alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
+            } catch (error) {
+                console.error("Error loading name.json:", error);
+                document.body.innerHTML = `<h1>Error</h1><p>There was an error loading the security check. Please try again later.</p>`;
             }
-
-            // Access granted
-            alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
         }
-
 
       // Call the checkAccess function when the page is loaded
     
