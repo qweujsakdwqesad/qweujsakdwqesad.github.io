@@ -15,29 +15,26 @@ jobs:
         node-version: '20.x'
         cache: 'npm'
 
-    - name: Install dependencies
+    - name: Install npm dependencies
       run: npm install
 
-    - name: Install Telebit
+    - name: Install ngrok
       run: |
-        curl -s https://get.telebit.io/ | bash
-        sudo mv telebit /usr/local/bin/
+        curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+        echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list >/dev/null
+        sudo apt update && sudo apt install ngrok
 
-   
+    - name: Configure ngrok with Authtoken
+      run: ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
 
-    - name: Start Telebit Tunnel
+    - name: Start ngrok
       run: |
-        # Generate a random subdomain using the current timestamp
-        SUBDOMAIN=$(date +%s | sha256sum | base64 | head -c 10)
-        nohup telebit http 3000 --subdomain $SUBDOMAIN &
-        sleep 5  # Wait for the tunnel to start
+        ngrok http 3000 &  # Replace 3000 with your server’s port if different
+        sleep 5            # Give ngrok time to initialize
 
-    - name: Get Public URL
+    - name: Display ngrok Public URL
       run: |
-        sleep 5  # Wait for Telebit to generate the public URL
-        echo "Your Public URL: https://$SUBDOMAIN.telebit.io"
+        curl -s localhost:4040/api/tunnels | jq '.tunnels[0].public_url'
 
-
-         - name: Start Server
-        run: |
-        nohup node server.js &
+    - name: Start server
+      run: node server.js
