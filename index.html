@@ -3,115 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Validation</title>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Login</title>
 </head>
 <body>
-    <h1>Password Validation</h1>
-    <form id="loginForm">
-        <input type="text" id="username" placeholder="Username" required><br>
-        <input type="password" id="password" placeholder="Password" required><br>
-        <button type="submit">Log In</button>
-    </form>
+    <h2>Login</h2>
+    <input type="text" id="nameInput" placeholder="Enter your name" />
+    <input type="password" id="passwordInput" placeholder="Enter your password" />
+    <button onclick="checkName()">Login</button>
+    <p id="message"></p>
+
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js"></script>
     
     <script>
-        // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyCduVWKA570X-7cnLCvYlZS13sGNZoH8sM",
-            authDomain: "passwordcheckapp.firebaseapp.com",
-            databaseURL: "https://passwordcheckapp-default-rtdb.firebaseio.com",
-            projectId: "passwordcheckapp",
-            storageBucket: "passwordcheckapp.firebasestorage.app",
-            messagingSenderId: "104974080268",
-            appId: "1:104974080268:web:5662a4b41a6dab3afe9129",
-            measurementId: "G-TXPZJHY4MY"
+            apiKey: "AIzaSyCduVWKA570X-7cnLCvYlZS13sGNZoH8sM", // Replace with your actual API key
+            authDomain: "passwordcheckapp.firebaseapp.com", // Replace with your actual Auth domain
+            databaseURL: "https://passwordcheckapp-default-rtdb.firebaseio.com", // Replace with your actual database URL
+            projectId: "passwordcheckapp", // Replace with your actual Project ID
+            storageBucket: "passwordcheckapp.appspot.com", // Replace with your actual storage bucket
+            messagingSenderId: "104974080268", // Replace with your actual messaging sender ID
+            appId: "1:104974080268:web:5662a4b41a6dab3afe9129", // Replace with your actual app ID
+            measurementId: "G-TXPZJHY4MY" // Replace with your actual measurement ID
         };
 
-        // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database(app);
 
-        // GitHub token for API requests
-        const token = "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";
-        const repoOwner = "qweujsakdwqesad";  // Your repo owner
-        const repoName = "qweujsakdwqesad.github.io";  // Your repository name
-        const bannedFilePath = "banned-users.json";  // Path to your banned users file
+        async function checkName() {
+            const nameInput = document.getElementById("nameInput").value;
+            const passwordInput = document.getElementById("passwordInput").value;
+            const messageElement = document.getElementById("message");
 
-        async function checkAndBanUser(username) {
-            // Fetch the user's details from Firebase
-            const userRef = firebase.database().ref(`users/${username}`);
-            const userSnapshot = await userRef.once("value");
-
-            if (!userSnapshot.exists()) {
-                alert("User does not exist.");
-                return;
+            // Generate a unique device ID and store it in localStorage
+            let deviceId = localStorage.getItem("device_id");
+            if (!deviceId) {
+                deviceId = 'device-' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem("device_id", deviceId);
             }
 
-            const userData = userSnapshot.val();
-            const deviceId = userData.deviceId; // Fetch the deviceId of the user
+            try {
+                console.log("Fetching name.json...");
+                const response = await fetch('/name.json');
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-            // Get current banned users from GitHub
-            await $.get(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${bannedFilePath}`, {
-                headers: {
-                    Authorization: `token ${token}`
-                }
-            }).then(async (response) => {
-                const fileContent = atob(response.content);
-                let bannedUsers = JSON.parse(fileContent);
-                const userAlreadyBanned = bannedUsers.some(bannedUser => bannedUser.deviceId === deviceId);
+                const validPasswords = await response.json();
+                if (validPasswords[nameInput] === passwordInput) {
+                    // Check if the device has already been banned
+                    const bannedResponse = await fetch('/banned-users.json');
+                    const bannedUsers = await bannedResponse.json();
 
-                if (userAlreadyBanned) {
-                    alert("You are banned.");
-                    return;
-                }
+                    if (bannedUsers.includes(deviceId)) {
+                        messageElement.textContent = "You are banned from logging in.";
+                        return;
+                    }
 
-                // Check if the password is correct
-                if (userData.password !== $("#password").val()) {
-                    // Add user to banned list if the password is incorrect
-                    bannedUsers.push({ deviceId: deviceId, username: username });
+                    // Check if the device has already been used to log in
+                    const deviceRef = firebase.database().ref(`users/${nameInput}/deviceId`);
+                    const snapshot = await deviceRef.get();
 
-                    // Update the banned-users file on GitHub
-                    await $.ajax({
-                        url: `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${bannedFilePath}`,
-                        method: 'PUT',
-                        headers: {
-                            Authorization: `token ${token}`
-                        },
-                        data: JSON.stringify({
-                            message: "Ban user due to invalid password attempt",
-                            content: btoa(JSON.stringify(bannedUsers)),
-                            sha: response.sha // The SHA from the previous file request
-                        }),
-                        success: () => {
-                            alert("You have been banned.");
-                            window.location.reload();  // Reload the page after banning
-                        },
-                        error: (err) => {
-                            console.error("Error updating banned-users.json: ", err);
+                    if (snapshot.exists() && snapshot.val() !== deviceId) {
+                        alert("Well well well, You shared your password. Access revoked.");
+                        
+                        // Add the device ID to banned-users.json
+                        const updateResponse = await fetch('https://api.github.com/repos/qweujsakdwqesad/qweujsakdwqesad.github.io/contents/banned-users.json', {
+                            method: 'PUT',
+                            headers: {
+                                Authorization: 'token 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', // Replace with your GitHub token
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: 'Ban device for sharing password',
+                                content: btoa(JSON.stringify([...bannedUsers, deviceId])),
+                                sha: 'e5eac7b07e498ead10ecdb0af573737508d9c6a1' // Replace with the SHA of the banned-users.json file
+                            })
+                        });
+
+                        if (updateResponse.ok) {
+                            alert("Your device is now banned.");
+                            window.location.href = "index.html"; // Redirect to login page
                         }
-                    });
+
+                        await firebase.database().ref(`users/${nameInput}`).remove();
+                        return;
+                    }
+
+                    // Store the device ID in Firebase if it’s the first login on this device
+                    await deviceRef.set(deviceId);
+                    console.log("Credentials match! Redirecting...");
+                    sessionStorage.setItem("name", nameInput);
+                    sessionStorage.setItem("password", passwordInput);
+                    window.location.href = "Website.html";
                 } else {
-                    // Let the user in if the password is correct and deviceId matches
-                    alert("Login successful.");
-                    // Redirect to a dashboard or another page after successful login
-                    window.location.href = "/Website.html";  // Replace with your desired URL
+                    messageElement.textContent = "Incorrect name or password.";
                 }
-            }).catch((error) => {
-                console.error("Error fetching banned-users.json: ", error);
-            });
+            } catch (error) {
+                console.error("Error loading name.json:", error);
+                messageElement.textContent = "Error loading credentials. Please try again later.";
+            }
         }
-
-        $("#loginForm").submit(function(event) {
-            event.preventDefault();
-
-            const username = $("#username").val();
-            const password = $("#password").val();
-
-            // Call the function to check and ban the user
-            checkAndBanUser(username);
-        });
     </script>
 </body>
 </html>
