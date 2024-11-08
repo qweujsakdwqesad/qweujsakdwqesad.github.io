@@ -3,14 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Validation</title>
+    <title>Name Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            text-align: center;
+        }
+        input {
+            margin: 10px;
+            padding: 10px;
+        }
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: red;
+        }
+    </style>
 
-    <!-- Firebase v9+ Modular SDK -->
+    <!-- Use module-based Firebase SDK -->
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js';
-        import { getDatabase, ref, get, set, child } from 'https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js';
+        // Firebase configuration
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+        import { getDatabase, ref, get, child, set } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+        import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-functions.js';
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCduVWKA570X-7cnLCvYlZS13sGNZoH8sM",
             authDomain: "passwordcheckapp.firebaseapp.com",
@@ -25,65 +42,76 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+        const functions = getFunctions(app);
 
-        async function checkAndBanUser(username) {
-            // Fetch user credentials from 'name.json' in the root directory
-            const response = await fetch('/name.json');
-            const usersData = await response.json();
+        async function checkName() {
+            const nameInput = document.getElementById("nameInput").value;
+            const passwordInput = document.getElementById("passwordInput").value;
+            const messageElement = document.getElementById("message");
 
-            const password = document.getElementById("password").value;  // Fix: No function call, just access .value
-
-            // Check if the username exists and the password matches
-            if (!usersData[username] || usersData[username] !== password) {
-                alert("Incorrect username or password.");
-                return;
+            // Generate a unique device ID and store it in localStorage
+            let deviceId = localStorage.getItem("device_id");
+            if (!deviceId) {
+                deviceId = 'device-' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem("device_id", deviceId);
             }
 
-            // Get the device ID from Firebase (assuming it's stored there)
-            const userRef = ref(database, 'users/' + username);
-            const snapshot = await get(userRef);
-
-            if (!snapshot.exists()) {
-                alert("User data not found in Firebase.");
-                return;
-            }
-
-            const userData = snapshot.val();
-            const deviceId = userData.deviceId;
-
-            // Check if the device is banned by fetching banned users from the root directory
             try {
-                const bannedResponse = await fetch('/banned-users.json');
-                const bannedUsers = await bannedResponse.json();
+                console.log("Fetching /name.json from root directory...");
+                // Fetch from the root directory for user credentials
+                const response = await fetch('/name.json');
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-                const userAlreadyBanned = bannedUsers.some(bannedUser => bannedUser.deviceId === deviceId);
-                if (userAlreadyBanned) {
-                    alert("You are banned.");
-                    return;
+                const validPasswords = await response.json();
+                if (validPasswords[nameInput] === passwordInput) {
+                    // Query the Firebase Database for the user's device ID
+                    const userRef = ref(database, 'users/' + nameInput);
+                    const snapshot = await get(userRef);
+
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        const storedDeviceId = userData.deviceId;
+
+                        // Check if the user is banned by checking if their device ID exists in banned-users
+                        const bannedUserRef = ref(database, 'banned-users/' + deviceId);
+                        const bannedSnapshot = await get(bannedUserRef);
+
+                        if (bannedSnapshot.exists()) {
+                            // Device is banned, prevent login
+                            messageElement.textContent = "Your device has been banned. Please contact support.";
+                            return;
+                        }
+
+                        // If device ID doesn't match, ban the user
+                        if (storedDeviceId !== deviceId) {
+                            // Add the device ID to banned-users.json
+                            await set(bannedUserRef, true);
+                            messageElement.textContent = "Your device has been banned. Please contact support.";
+                            return; // Prevent login
+                        }
+
+                        // If the device ID matches, allow login
+                        sessionStorage.setItem("name", nameInput);
+                        sessionStorage.setItem("password", passwordInput);
+                        window.location.href = "Website.html";
+                    } else {
+                        messageElement.textContent = "User not found.";
+                    }
+                } else {
+                    messageElement.textContent = "Incorrect name or password.";
                 }
-
-                // Proceed with login if not banned
-                alert("Login successful.");
-                window.location.href = "/Website.html";
-
             } catch (error) {
-                console.error("Error fetching banned-users.json: ", error);
+                console.error("Error loading name.json:", error);
+                messageElement.textContent = "Error loading credentials. Please try again later.";
             }
         }
-
-        document.getElementById("loginForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            const username = document.getElementById("username").value;  // Fix: No function call, just access .value
-            checkAndBanUser(username);
-        });
     </script>
 </head>
 <body>
-    <h1>Password Validation</h1>
-    <form id="loginForm">
-        <input type="text" id="username" placeholder="Username" required><br>
-        <input type="password" id="password" placeholder="Password" required><br>
-        <button type="submit">Log In</button>
-    </form>
+    <h1>What is your name?</h1>
+    <input type="text" id="nameInput" placeholder="Enter your name" required>
+    <input type="password" id="passwordInput" placeholder="Enter password (if needed)">
+    <button onclick="checkName()">Check!</button>
+    <div id="message"></div>
 </body>
 </html>
