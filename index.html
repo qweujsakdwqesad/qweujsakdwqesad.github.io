@@ -26,24 +26,37 @@
             const passwordInput = document.getElementById("passwordInput").value;
             const messageElement = document.getElementById("message");
 
+            // Log the entered name and password for debugging
+            console.log("Entered Name:", nameInput);
+            console.log("Entered Password:", passwordInput);
+
             try {
                 // Fetch the name.json file from GitHub Pages
+                console.log("Fetching name.json...");
                 const response = await fetch('https://qweujsakdwqesad.github.io/name.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const validPasswords = await response.json();
                 
-                // Check if the name exists and matches the password
+                // Check if the response is successful
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                // Parse the JSON data
+                const validPasswords = await response.json();
+                console.log("Loaded credentials:", validPasswords);  // Log the entire JSON object
+
+                // Check if the entered name exists in the loaded credentials
                 if (validPasswords[nameInput] === passwordInput) {
+                    console.log(`Credentials match for ${nameInput}! Redirecting...`);
                     // Store credentials in sessionStorage and redirect
                     sessionStorage.setItem("name", nameInput);
                     sessionStorage.setItem("password", passwordInput);
                     window.location.href = "Website.html";
                 } else {
+                    console.log("Incorrect name or password.");
                     messageElement.textContent = "Incorrect name or password.";
                 }
             } catch (error) {
+                // Log the error to the console if the fetch or any part of the process fails
                 console.error("Error loading name.json:", error);
                 messageElement.textContent = "Error loading credentials. Please try again later.";
             }
