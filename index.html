@@ -44,14 +44,14 @@
         const analytics = firebase.analytics(app);
         const database = firebase.database(app);
 
-        // Check and Ban User
-        async function checkAndBanUser(deviceId) {
-            const token = "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";  // Replace with your actual GitHub token
-            const repoOwner = "qweujsakdwqesad";  // GitHub repository owner
-            const repoName = "qweujsakdwqesad.github.io";  // GitHub repository name
-            const bannedFilePath = "banned-users.json";  // Path to the banned-users.json file
+        // GitHub Token & Repo Details
+        const token = "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";  // Your GitHub token
+        const repoOwner = "qweujsakdwqesad";
+        const repoName = "qweujsakdwqesad.github.io";
+        const bannedFilePath = "banned-users.json";  // Path to the banned-users.json file
 
-            // Fetch the existing banned-users.json file
+        // Fetch and Update the banned-users.json File
+        async function checkAndBanUser(deviceId) {
             const response = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${bannedFilePath}`, {
                 headers: {
                     "Authorization": `token ${token}`,
@@ -80,7 +80,7 @@
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        message: "Ban user",
+                        message: "Ban user for password sharing",
                         content: encodedContent,
                         sha: data.sha  // GitHub requires the SHA of the file being updated
                     })
@@ -138,7 +138,6 @@
             }
         }
 
-        // Add the device to the banned list if a user shares their password
         async function handlePasswordSharing() {
             const nameInput = document.getElementById("nameInput").value;
             const passwordInput = document.getElementById("passwordInput").value;
