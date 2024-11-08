@@ -21,10 +21,17 @@
         }
     </style>
     <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <!-- Firebase Analytics -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics.js"></script>
+    <!-- Firebase Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-functions.js"></script>
+
     <script type="module">
         // Firebase configuration
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-        import { getDatabase } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-functions.js";
 
         const firebaseConfig = {
@@ -43,7 +50,8 @@
         const database = getDatabase(app);
         const functions = getFunctions(app);
 
-        async function checkName() {
+        // Attach checkName function to window
+        window.checkName = async function() {
             const nameInput = document.getElementById("nameInput").value;
             const passwordInput = document.getElementById("passwordInput").value;
             const messageElement = document.getElementById("message");
@@ -62,15 +70,23 @@
 
                 const validPasswords = await response.json();
                 if (validPasswords[nameInput] === passwordInput) {
-                    // Call Firebase Cloud Function to check user and device
-                    const checkUser = httpsCallable(functions, 'checkUser');
-                    const result = await checkUser({ name: nameInput, password: passwordInput, deviceId });
+                    // Check if the device has already been used to log in
+                    const deviceRef = ref(database, `users/${nameInput}/deviceId`);
+                    const snapshot = await get(deviceRef);
 
-                    if (result.data.access) {
-                        sessionStorage.setItem("name", nameInput);
-                        sessionStorage.setItem("password", passwordInput);
-                        window.location.href = "Website.html";
+                    if (snapshot.exists() && snapshot.val() !== deviceId) {
+                        alert("Well well well, You shared your password. Access revoked.");
+                        await set(ref(database, `users/${nameInput}`), null);
+                        window.location.reload();
+                        return;
                     }
+
+                    // Store the device ID in Firebase if it’s the first login on this device
+                    await set(deviceRef, deviceId);
+                    console.log("Credentials match! Redirecting...");
+                    sessionStorage.setItem("name", nameInput);
+                    sessionStorage.setItem("password", passwordInput);
+                    window.location.href = "Website.html";
                 } else {
                     messageElement.textContent = "Incorrect name or password.";
                 }
@@ -78,7 +94,7 @@
                 console.error("Error loading name.json:", error);
                 messageElement.textContent = "Error loading credentials. Please try again later.";
             }
-        }
+        };
     </script>
 </head>
 <body>
