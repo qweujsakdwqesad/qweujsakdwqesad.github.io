@@ -28,72 +28,104 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
     <script>
         // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCduVWKA570X-7cnLCvYlZS13sGNZoH8sM",
-            authDomain: "passwordcheckapp.firebaseapp.com",
-            databaseURL: "https://passwordcheckapp-default-rtdb.firebaseio.com",
-            projectId: "passwordcheckapp",
-            storageBucket: "passwordcheckapp.firebasestorage.app",
-            messagingSenderId: "104974080268",
-            appId: "1:104974080268:web:5662a4b41a6dab3afe9129",
-            measurementId: "G-TXPZJHY4MY"
-        };
+     // Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCduVWKA570X-7cnLCvYlZS13sGNZoH8sM",
+    authDomain: "passwordcheckapp.firebaseapp.com",
+    databaseURL: "https://passwordcheckapp-default-rtdb.firebaseio.com",
+    projectId: "passwordcheckapp",
+    storageBucket: "passwordcheckapp.firebasestorage.app",
+    messagingSenderId: "104974080268",
+    appId: "1:104974080268:web:5662a4b41a6dab3afe9129",
+    measurementId: "G-TXPZJHY4MY"
+};
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const analytics = firebase.analytics(app);
-        const database = firebase.database(app);
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
-        // GitHub Token & Repo Details
-        const token = "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";  // Your GitHub token
-        const repoOwner = "qweujsakdwqesad";
-        const repoName = "qweujsakdwqesad.github.io";
-        const bannedFilePath = "banned-users.json";  // Path to the banned-users.json file
+// Function to check and ban the user
+async function checkAndBanUser() {
+    const usernameInput = document.getElementById("name").value; // Assuming name input field
+    const passwordInput = document.getElementById("password").value; // Assuming password input field
 
-        // Fetch and Update the banned-users.json File
-        async function checkAndBanUser(deviceId) {
-            const response = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${bannedFilePath}`, {
+    // Get the deviceId from Firebase (Assuming it's stored under users/{username}/deviceId)
+    const deviceIdRef = firebase.database().ref(`users/${usernameInput}/deviceId`);
+    
+    try {
+        const snapshot = await deviceIdRef.get();
+        
+        if (snapshot.exists()) {
+            const deviceId = snapshot.val(); // Device ID from Firebase
+            
+            // Proceed with banning logic (check against banned users)
+            const token = "YOUR_GITHUB_TOKEN";  // GitHub token for API requests
+            const repoOwner = "qweujsakdwqesad";  // GitHub repository owner
+            const repoName = "qweujsakdwqesad.github.io";  // Repository name
+            const bannedFilePath = "banned-users.json";  // Path to banned users file
+            
+            // Fetch banned users list from GitHub
+            const bannedUsersUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${bannedFilePath}`;
+            
+            const response = await fetch(bannedUsersUrl, {
+                method: "GET",
                 headers: {
-                    "Authorization": `token ${token}`,
+                    "Authorization": `token ${token}`
                 }
             });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Decode the file content
-                const content = atob(data.content);
-                const bannedUsers = JSON.parse(content);
-
-                // Add the deviceId to the banned users list
-                bannedUsers[deviceId] = true;
-
-                // Prepare the updated file content
-                const updatedContent = JSON.stringify(bannedUsers, null, 2);
-                const encodedContent = btoa(updatedContent);
-
-                // Update the banned-users.json file on GitHub
-                await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${bannedFilePath}`, {
-                    method: 'PUT',
-                    headers: {
-                        "Authorization": `token ${token}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        message: "Ban user for password sharing",
-                        content: encodedContent,
-                        sha: data.sha  // GitHub requires the SHA of the file being updated
-                    })
-                });
-
-                alert("You shared your password. You are now banned.");
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            } else {
-                console.error("Error fetching banned users:", data);
+            
+            if (!response.ok) {
+                console.error("Error fetching banned users list:", response.statusText);
+                return;
             }
+            
+            const data = await response.json();
+            
+            if (data.content) {
+                const bannedUsers = JSON.parse(atob(data.content)); // Decoding the Base64 content
+                
+                if (bannedUsers.includes(deviceId)) {
+                    alert("You are banned from this site.");
+                    window.location.reload(); // Reload the page
+                } else {
+                    // Add deviceId to banned users
+                    bannedUsers.push(deviceId);
+                    
+                    // Update the banned users list in the repository
+                    const updatedBannedUsers = JSON.stringify(bannedUsers, null, 2);
+                    
+                    const updateResponse = await fetch(bannedUsersUrl, {
+                        method: "PUT",
+                        headers: {
+                            "Authorization": `token ${token}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            message: "Banning a new user.",
+                            committer: {
+                                name: "YourBotName",
+                                email: "yourbot@example.com"
+                            },
+                            content: btoa(updatedBannedUsers)  // Encoding the content in Base64
+                        })
+                    });
+
+                    if (!updateResponse.ok) {
+                        console.error("Error updating banned users list:", updateResponse.statusText);
+                        return;
+                    }
+
+                    alert("You have been banned for sharing your password.");
+                    window.location.reload();  // Reload the page
+                }
+            }
+        } else {
+            alert("Device ID not found for this user.");
         }
+    } catch (error) {
+        console.error("Error accessing Firebase or GitHub:", error);
+    }
+}
+
 
         async function checkName() {
             const nameInput = document.getElementById("nameInput").value;
