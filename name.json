@@ -1,4 +1,6 @@
-Jon:ilovesimba!
-Andrew:andrewisgood
-Weber:jonsmybestfriend
-Ethan:ilovediddy!
+{
+    "Jon": "ilovesimba!",
+    "Andrew": "andrewisgood",
+    "Weber": "jonsmybestfriend",
+    "Ethan": "ilovediddy!"
+}
