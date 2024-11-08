@@ -31,7 +31,7 @@
             const response = await fetch('/name.json');
             const usersData = await response.json();
 
-            const password = document.getElementById("password").value();
+            const password = document.getElementById("password").value;  // Fix: No function call, just access .value
 
             // Check if the username exists and the password matches
             if (!usersData[username] || usersData[username] !== password) {
@@ -73,7 +73,7 @@
 
         document.getElementById("loginForm").addEventListener("submit", function(event) {
             event.preventDefault();
-            const username = document.getElementById("username").value;
+            const username = document.getElementById("username").value;  // Fix: No function call, just access .value
             checkAndBanUser(username);
         });
     </script>
