@@ -21,15 +21,7 @@
         }
     </style>
     <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-    <!-- Firebase Analytics -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics.js"></script>
-    <!-- Firebase Database -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-functions.js"></script>
-
     <script type="module">
-        // Firebase configuration
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-functions.js";
@@ -44,13 +36,12 @@
             appId: "1:104974080268:web:5662a4b41a6dab3afe9129",
             measurementId: "G-TXPZJHY4MY"
         };
-        
+
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        const functions = getFunctions(app);
 
-        // Attach checkName function to window
+        // Attach checkName function to window for access in HTML
         window.checkName = async function() {
             const nameInput = document.getElementById("nameInput").value;
             const passwordInput = document.getElementById("passwordInput").value;
