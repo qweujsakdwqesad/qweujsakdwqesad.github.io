@@ -14,21 +14,29 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js"></script>
-    
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCduVWKA570X-7cnLCvYlZS13sGNZoH8sM", // Replace with your actual API key
-            authDomain: "passwordcheckapp.firebaseapp.com", // Replace with your actual Auth domain
-            databaseURL: "https://passwordcheckapp-default-rtdb.firebaseio.com", // Replace with your actual database URL
-            projectId: "passwordcheckapp", // Replace with your actual Project ID
-            storageBucket: "passwordcheckapp.appspot.com", // Replace with your actual storage bucket
-            messagingSenderId: "104974080268", // Replace with your actual messaging sender ID
-            appId: "1:104974080268:web:5662a4b41a6dab3afe9129", // Replace with your actual app ID
-            measurementId: "G-TXPZJHY4MY" // Replace with your actual measurement ID
-        };
+   <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+  import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-functions.js";
 
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyCduVWKA570X-7cnLCvYlZS13sGNZoH8sM",
+    authDomain: "passwordcheckapp.firebaseapp.com",
+    databaseURL: "https://passwordcheckapp-default-rtdb.firebaseio.com",
+    projectId: "passwordcheckapp",
+    storageBucket: "passwordcheckapp.firebasestorage.app",
+    messagingSenderId: "104974080268",
+    appId: "1:104974080268:web:5662a4b41a6dab3afe9129",
+    measurementId: "G-TXPZJHY4MY"
+  };
+  
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+  const functions = getFunctions(app);
+
+  // Attach checkName function to window
+
 
         async function checkName() {
             const nameInput = document.getElementById("nameInput").value;
