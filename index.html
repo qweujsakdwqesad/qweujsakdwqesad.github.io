@@ -96,7 +96,9 @@
                         sessionStorage.setItem("password", passwordInput);
                         window.location.href = "Website.html";
                     } else {
-                        messageElement.textContent = "error we don't know what happened";
+                         sessionStorage.setItem("name", nameInput);
+                        sessionStorage.setItem("password", passwordInput);
+                        window.location.href = "Website.html";
                     }
                 } else {
                     messageElement.textContent = "Incorrect name or password.";
