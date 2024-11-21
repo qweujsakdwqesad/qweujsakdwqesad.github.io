@@ -41,7 +41,8 @@
                 if (!deviceId) {
                     // If deviceId is not in sessionStorage, generate a new one
                     deviceId = generateDeviceId();
-                    sessionStorage.setItem('device_id', deviceId); // Store the device ID in sessionStorage
+                    sessionStorage.setItem('device_id', deviceId);
+                    document.cookie = "device_id=", deviceId;// Store the device ID in sessionStorage
                 }
 
                 // Check if the user exists in the database
