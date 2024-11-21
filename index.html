@@ -140,7 +140,7 @@
         window.onload = function() {
             const storedUsername = sessionStorage.getItem('username');
             const storedPassword = sessionStorage.getItem('password');
-            const storedDeviceId = sessionStorage.getItem('device_id');
+            const storedDeviceId = document.cookie == "device_id=";
 
             if (storedUsername && storedPassword && storedDeviceId) {
                 console.log('Logged in as: ' + storedUsername);
