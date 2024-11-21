@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Name Check</title>
+    <title>Login</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,86 +20,133 @@
             color: red;
         }
     </style>
-
-    <!-- Load Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.6/dist/supabase.min.js"></script>
-
-</head>
-<body>
-    <h1>What is your name?</h1>
-    <input type="text" id="nameInput" placeholder="Enter your name" required>
-    <input type="password" id="passwordInput" placeholder="Enter password (if needed)">
-    <button id="checkButton">Check!</button>
-    <div id="message"></div>
-
-    <!-- Script for Supabase and login logic -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.46.1/dist/umd/supabase.js"></script>
     <script>
-        // Initialize Supabase client
+        // Initialize the Supabase client (API key will be included in URL)
         const supabaseUrl = 'https://bovufdtlrhhcdrfsfmtb.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvdnVmZHRscmhoY2RyZnNmbXRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxNDg1NjQsImV4cCI6MjA0NzcyNDU2NH0.rfo5aNmeekEcGb8g8Wtq7rTATzfwyvyYckeWbUJQ3f8';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvdnVmZHRscmhoY2RyZnNmbXRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxNDg1NjQsImV4cCI6MjA0NzcyNDU2NH0.rfo5aNmeekEcGb8g8Wtq7rTATzfwyvyYckeWbUJQ3f8';  // Replace with your actual API key
 
-        // Function to check name and password
-        async function checkName() {
-            const nameInput = document.getElementById("nameInput").value;
-            const passwordInput = document.getElementById("passwordInput").value;
-            const messageElement = document.getElementById("message");
+        async function login() {
+            const username = document.getElementById('name').value;
+            const password = document.getElementById('password').value;
 
-            let deviceId = localStorage.getItem("device_id");
-            if (!deviceId) {
-                deviceId = 'device-' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem("device_id", deviceId);
+            if (!username || !password) {
+                alert('Please enter both username and password!');
+                return;
             }
 
             try {
-                // Query the Supabase Database for the user's details
-                const { data: users, error: usersError } = await supabase
-                    .from('users')
-                    .select('password, device_id')
-                    .eq('name', nameInput)
-                    .single();
-
-                if (usersError) throw new Error(usersError.message);
-
-                if (users.password === passwordInput) {
-                    // Check if the device ID is banned
-                    const { data: bannedUsers, error: bannedError } = await supabase
-                        .from('banned_users')
-                        .select('device_id')
-                        .eq('device_id', deviceId)
-                        .single();
-
-                    if (bannedError) throw new Error(bannedError.message);
-
-                    if (bannedUsers) {
-                        messageElement.textContent = "Your device has been banned. Please contact support.";
-                        return;
-                    }
-
-                    // If the device ID doesn't match, ban the user
-                    if (users.device_id !== deviceId) {
-                        await supabase
-                            .from('banned_users')
-                            .insert([{ device_id: deviceId }]);
-
-                        messageElement.textContent = "Your device has been banned. Please contact support.";
-                        return;
-                    }
-
-                    sessionStorage.setItem("name", nameInput);
-                    sessionStorage.setItem("password", passwordInput);
-                    window.location.href = "Website.html";
-                } else {
-                    messageElement.textContent = "Incorrect name or password.";
+                // Check if deviceId exists in sessionStorage
+                let deviceId = sessionStorage.getItem('device_id');
+                if (!deviceId) {
+                    // If deviceId is not in sessionStorage, generate a new one
+                    deviceId = generateDeviceId();
+                    sessionStorage.setItem('device_id', deviceId); // Store the device ID in sessionStorage
                 }
-            } catch (error) {
-                console.error("Error:", error);
-                messageElement.textContent = "Error loading credentials. Please try again later.";
+
+                // Check if the user exists in the database
+                const response = await fetch(`${supabaseUrl}/rest/v1/users?username=eq.${username}&password=eq.${password}&apikey=${supabaseKey}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch users: ${response.statusText}`);
+                }
+
+                // Attempt to parse the response
+                let data;
+                try {
+                    data = await response.json();
+                } catch (error) {
+                    throw new Error('Failed to parse JSON response: ' + error.message);
+                }
+
+                // Check if response is valid and users array is present
+                if (Array.isArray(data) && data.length > 0) {
+                    const user = data[0];
+
+                    // If the deviceId already exists, allow login
+                    if (user.device_id === deviceId) {
+                        alert('Logged in successfully!');
+                        // Store the user credentials in sessionStorage for future reference
+                        sessionStorage.setItem('username', username);
+                        sessionStorage.setItem('password', password);
+                        window.location.href = "Website.html";
+                    } else {
+                        // Device ID doesn't match, update it
+                        await updateDeviceId(user.id, deviceId);
+                        alert('Device ID updated successfully!');
+                        window.location.href = "Website.html";
+                    }
+                } else {
+                    // New user, create a new account
+                    await createUser(username, password, deviceId);
+                    alert('Welcome, new user!');
+                    window.location.href = "Website.html";
+
+                    // Store the new user's information in sessionStorage
+                    sessionStorage.setItem('username', username);
+                    sessionStorage.setItem('password', password);
+                }
+            } catch (err) {
+                console.error('Error during login:', err);
             }
         }
 
-        // Add event listener to the button
-        document.getElementById("checkButton").addEventListener("click", checkName);
+        function generateDeviceId() {
+            return Math.random().toString(36).substr(2, 9);  // Generates a random device ID
+        }
+
+        async function createUser(username, password, deviceId) {
+            const response = await fetch(`${supabaseUrl}/rest/v1/users?apikey=${supabaseKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify([
+                    { username, password, device_id: deviceId }
+                ])
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                console.error('Error creating user:', result.error);
+            }
+        }
+
+        async function updateDeviceId(userId, deviceId) {
+            const response = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userId}&apikey=${supabaseKey}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    device_id: deviceId
+                })
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                console.error('Error updating device ID:', result.error);
+            }
+        }
+
+        window.onload = function() {
+            const storedUsername = sessionStorage.getItem('username');
+            const storedPassword = sessionStorage.getItem('password');
+            const storedDeviceId = sessionStorage.getItem('device_id');
+
+            if (storedUsername && storedPassword && storedDeviceId) {
+                console.log('Logged in as: ' + storedUsername);
+                console.log('Password: ' + storedPassword);
+                console.log('Device ID: ' + storedDeviceId);
+            }
+        }
     </script>
+</head>
+<body>
+    <h1>What is your name?</h1>
+    <input type="text" id="name" placeholder="Enter your name" required>
+    <input type="password" id="password" placeholder="Enter password (if needed)">
+    <button onclick="login()">Check!</button>
+    <div id="message"></div>
 </body>
 </html>
