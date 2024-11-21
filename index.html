@@ -41,7 +41,8 @@
                 if (!deviceId) {
                     // If deviceId is not in sessionStorage, generate a new one
                     deviceId = generateDeviceId();
-                    sessionStorage.setItem('device_id', deviceId);
+                    localStorage.setItem('device_id', deviceId);
+                    
                     document.cookie = "device_id=", deviceId;// Store the device ID in sessionStorage
                 }
 
@@ -73,23 +74,26 @@
                     if (user.device_id === deviceId) {
                         alert('Logged in successfully!');
                         // Store the user credentials in sessionStorage for future reference
-                        sessionStorage.setItem('username', username);
-                        sessionStorage.setItem('password', password);
+                        localStorage.setItem('username', username);
+                        localStorage.setItem('password', password);
                         window.location.href = "Website.html";
                     } else {
                         // Device ID doesn't match, ban the second device
-                        await banDevice(deviceId);
-                        alert('This device has been banned because it is not authorized!');
+                        if (Array.isArray(data) && data.length > 0) {
+                    const user = data[0];
+
+                    // If the deviceId already exists, allow login
+                    if (user.device_id === deviceId) {
+                        alert('Logged in successfully!');
+                        // Store the user credentials in sessionStorage for future reference
+                        localStorage.setItem('username', username);
+                        localStorage.setItem('password', password);
+                        window.location.href = "Website.html";
                     }
                 } else {
                     // New user, create a new account
-                    await createUser(username, password, deviceId);
-                    alert('Welcome, new user!');
-                    window.location.href = "Website.html";
-
-                    // Store the new user's information in sessionStorage
-                    sessionStorage.setItem('username', username);
-                    sessionStorage.setItem('password', password);
+                  
+alert('user not found')
                 }
             } catch (err) {
                 console.error('Error during login:', err);
@@ -138,9 +142,9 @@
         }
 
         window.onload = function() {
-            const storedUsername = sessionStorage.getItem('username');
-            const storedPassword = sessionStorage.getItem('password');
-            const storedDeviceId = document.cookie == "device_id=";
+            const storedUsername = localStorage.getItem('username');
+            const storedPassword = localStorage.getItem('password');
+            const storedDeviceId = localStorage.getItem('device_id');
 
             if (storedUsername && storedPassword && storedDeviceId) {
                 console.log('Logged in as: ' + storedUsername);
