@@ -22,7 +22,7 @@
     </style>
     <script src="https://unpkg.com/@supabase/supabase-js@2.46.1/dist/umd/supabase.js"></script>
     <script>
-        // Initialize the Supabase client (API key will be included in URL)
+        // Initialize the Supabase client (API key included in URL)
         const supabaseUrl = 'https://bovufdtlrhhcdrfsfmtb.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvdnVmZHRscmhoY2RyZnNmbXRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxNDg1NjQsImV4cCI6MjA0NzcyNDU2NH0.rfo5aNmeekEcGb8g8Wtq7rTATzfwyvyYckeWbUJQ3f8';  // Replace with your actual API key
 
@@ -46,15 +46,20 @@
 
                 // Check if the user exists in the database
                 const response = await fetch(`${supabaseUrl}/rest/v1/users?username=eq.${username}&password=eq.${password}&apikey=${supabaseKey}`);
-                
+
                 if (!response.ok) {
                     throw new Error(`Failed to fetch users: ${response.statusText}`);
                 }
 
                 // Attempt to parse the response
-                let data;
+                let data = null;
                 try {
-                    data = await response.json();
+                    const responseBody = await response.text(); // Get response body as text
+                    if (responseBody) {
+                        data = JSON.parse(responseBody); // Parse JSON only if response is not empty
+                    } else {
+                        throw new Error('Empty response body');
+                    }
                 } catch (error) {
                     throw new Error('Failed to parse JSON response: ' + error.message);
                 }
@@ -71,10 +76,9 @@
                         sessionStorage.setItem('password', password);
                         window.location.href = "Website.html";
                     } else {
-                        // Device ID doesn't match, update it
-                        await updateDeviceId(user.id, deviceId);
-                        alert('Device ID updated successfully!');
-                        window.location.href = "Website.html";
+                        // Device ID doesn't match, ban the second device
+                        await banDevice(deviceId);
+                        alert('This device has been banned because it is not authorized!');
                     }
                 } else {
                     // New user, create a new account
@@ -112,20 +116,23 @@
             }
         }
 
-        async function updateDeviceId(userId, deviceId) {
-            const response = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userId}&apikey=${supabaseKey}`, {
-                method: 'PATCH',
+        async function banDevice(deviceId) {
+            const response = await fetch(`${supabaseUrl}/rest/v1/banned_users?apikey=${supabaseKey}`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    device_id: deviceId
-                })
+                body: JSON.stringify([{ device_id: deviceId }])
             });
 
-            const result = await response.json();
-            if (result.error) {
-                console.error('Error updating device ID:', result.error);
+            const responseBody = await response.text();
+            let result = null;
+            if (responseBody) {
+                result = JSON.parse(responseBody);
+            }
+
+            if (result && result.error) {
+                console.error('Error banning device:', result.error);
             }
         }
 
