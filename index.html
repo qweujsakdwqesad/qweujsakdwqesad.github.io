@@ -21,21 +21,30 @@
         }
     </style>
 
-    <!-- Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/supabase.min.js"></script>
+    <!-- Load Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.6/dist/supabase.min.js"></script>
 
-    <script type="module">
-        // Supabase configuration
+</head>
+<body>
+    <h1>What is your name?</h1>
+    <input type="text" id="nameInput" placeholder="Enter your name" required>
+    <input type="password" id="passwordInput" placeholder="Enter password (if needed)">
+    <button id="checkButton">Check!</button>
+    <div id="message"></div>
+
+    <!-- Script for Supabase and login logic -->
+    <script>
+        // Initialize Supabase client
         const supabaseUrl = 'https://bovufdtlrhhcdrfsfmtb.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvdnVmZHRscmhoY2RyZnNmbXRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxNDg1NjQsImV4cCI6MjA0NzcyNDU2NH0.rfo5aNmeekEcGb8g8Wtq7rTATzfwyvyYckeWbUJQ3f8';
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        window.checkName = async function() {
+        // Function to check name and password
+        async function checkName() {
             const nameInput = document.getElementById("nameInput").value;
             const passwordInput = document.getElementById("passwordInput").value;
             const messageElement = document.getElementById("message");
 
-            // Generate a unique device ID and store it in localStorage
             let deviceId = localStorage.getItem("device_id");
             if (!deviceId) {
                 deviceId = 'device-' + Math.random().toString(36).substr(2, 9);
@@ -43,42 +52,40 @@
             }
 
             try {
-                // Fetch users from Supabase
+                // Query the Supabase Database for the user's details
                 const { data: users, error: usersError } = await supabase
                     .from('users')
-                    .select('username, device_id');
+                    .select('password, device_id')
+                    .eq('name', nameInput)
+                    .single();
 
-                if (usersError) throw usersError;
+                if (usersError) throw new Error(usersError.message);
 
-                // Check if username exists and validate password
-                const user = users.find(user => user.username === nameInput);
-                if (user && user.device_id === passwordInput) {
-                    // Check if device is banned
+                if (users.password === passwordInput) {
+                    // Check if the device ID is banned
                     const { data: bannedUsers, error: bannedError } = await supabase
                         .from('banned_users')
                         .select('device_id')
-                        .eq('device_id', deviceId);
+                        .eq('device_id', deviceId)
+                        .single();
 
-                    if (bannedError) throw bannedError;
+                    if (bannedError) throw new Error(bannedError.message);
 
-                    // If the device is banned, display a message and prevent login
-                    if (bannedUsers.length > 0) {
+                    if (bannedUsers) {
                         messageElement.textContent = "Your device has been banned. Please contact support.";
                         return;
                     }
 
-                    // If device ID doesn't match, ban the user
-                    if (user.device_id !== deviceId) {
-                        // Add the device ID to banned_users table
+                    // If the device ID doesn't match, ban the user
+                    if (users.device_id !== deviceId) {
                         await supabase
                             .from('banned_users')
                             .insert([{ device_id: deviceId }]);
-                        
+
                         messageElement.textContent = "Your device has been banned. Please contact support.";
                         return;
                     }
 
-                    // If everything is valid, allow login
                     sessionStorage.setItem("name", nameInput);
                     sessionStorage.setItem("password", passwordInput);
                     window.location.href = "Website.html";
@@ -90,13 +97,9 @@
                 messageElement.textContent = "Error loading credentials. Please try again later.";
             }
         }
+
+        // Add event listener to the button
+        document.getElementById("checkButton").addEventListener("click", checkName);
     </script>
-</head>
-<body>
-    <h1>What is your name?</h1>
-    <input type="text" id="nameInput" placeholder="Enter your name" required>
-    <input type="password" id="passwordInput" placeholder="Enter password (if needed)">
-    <button onclick="checkName()">Check!</button>
-    <div id="message"></div>
 </body>
 </html>
