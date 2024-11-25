@@ -13,6 +13,7 @@
         input {
             margin: 10px;
             padding: 10px;
+            width: 80%;
         }
         #message {
             margin-top: 20px;
@@ -20,145 +21,114 @@
             color: red;
         }
     </style>
-    <script src="https://unpkg.com/@supabase/supabase-js@2.46.1/dist/umd/supabase.js"></script>
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <!-- Custom Script -->
     <script>
-        // Initialize the Supabase client (API key included in URL)
-        const supabaseUrl = 'https://bovufdtlrhhcdrfsfmtb.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvdnVmZHRscmhoY2RyZnNmbXRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxNDg1NjQsImV4cCI6MjA0NzcyNDU2NH0.rfo5aNmeekEcGb8g8Wtq7rTATzfwyvyYckeWbUJQ3f8';  // Replace with your actual API key
+        let supabase; // Declare supabase globally to initialize later
+
+        function initializeSupabase() {
+            return new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (window.supabase) {
+                        clearInterval(interval); // Stop checking once Supabase is available
+                        resolve();
+                    }
+                }, 50); // Check every 50ms
+            });
+        }
+
+        async function startApp() {
+            await initializeSupabase();
+
+            const SUPABASE_URL = "https://bovufdtlrhhcdrfsfmtb.supabase.co";
+            const SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvdnVmZHRscmhoY2RyZnNmbXRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxNDg1NjQsImV4cCI6MjA0NzcyNDU2NH0.rfo5aNmeekEcGb8g8Wtq7rTATzfwyvyYckeWbUJQ3f8";
+
+            // Initialize Supabase client
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_API_KEY);
+
+            console.log("Supabase initialized successfully!");
+        }
 
         async function login() {
-            const username = document.getElementById('name').value;
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
             if (!username || !password) {
-                alert('Please enter both username and password!');
+                document.getElementById('message').innerText = "Please fill in all fields.";
                 return;
             }
 
             try {
-                // Check if deviceId exists in sessionStorage
-                let deviceId = sessionStorage.getItem('device_id');
+                // Ensure device ID is in localStorage
+                let deviceId = localStorage.getItem('device_id');
                 if (!deviceId) {
-                    // If deviceId is not in sessionStorage, generate a new one
                     deviceId = generateDeviceId();
                     localStorage.setItem('device_id', deviceId);
-                    
-                    document.cookie = "device_id=", deviceId;// Store the device ID in sessionStorage
                 }
 
-                // Check if the user exists in the database
-                const response = await fetch(`${supabaseUrl}/rest/v1/users?username=eq.${username}&password=eq.${password}&apikey=${supabaseKey}`);
+                // Fetch user data from Supabase
+                const { data: userData, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('username', username)
+                    .eq('password', password);
 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch users: ${response.statusText}`);
+                if (error || !userData || userData.length === 0) {
+                    document.getElementById('message').innerText = "Invalid username or password.";
+                    return;
                 }
 
-                // Attempt to parse the response
-                let data = null;
-                try {
-                    const responseBody = await response.text(); // Get response body as text
-                    if (responseBody) {
-                        data = JSON.parse(responseBody); // Parse JSON only if response is not empty
-                    } else {
-                        throw new Error('Empty response body');
+                const user = userData[0];
+
+                // Check if the device ID matches
+                if (user.device_id && user.device_id !== deviceId) {
+                    // Ban the user
+                    await supabase.from('banned_users').insert([{ device_id: deviceId }]);
+                    document.getElementById('message').innerText = "Device banned.";
+                    localStorage.removeItem('device_id');
+                    setTimeout(() => window.location.reload(), 2000);
+                    return;
+                }
+
+                // If no device ID is set, update it in Supabase
+                if (!user.device_id) {
+                    const { error: updateError } = await supabase
+                        .from('users')
+                        .update({ device_id: deviceId })
+                        .eq('username', username);
+
+                    if (updateError) {
+                        document.getElementById('message').innerText = "Failed to update device ID.";
+                        return;
                     }
-                } catch (error) {
-                    throw new Error('Failed to parse JSON response: ' + error.message);
                 }
 
-                // Check if response is valid and users array is present
-                if (Array.isArray(data) && data.length > 0) {
-                    const user = data[0];
-
-                    // If the deviceId already exists, allow login
-                    if (user.device_id === deviceId) {
-                        alert('Logged in successfully!');
-                        // Store the user credentials in sessionStorage for future reference
-                        localStorage.setItem('username', username);
-                        localStorage.setItem('password', password);
-                        window.location.href = "Website.html";
-                    } else {
-                        // Device ID doesn't match, ban the second device
-                        if (Array.isArray(data) && data.length > 0) {
-                    const user = data[0];
-
-                    // If the deviceId already exists, allow login
-                    if (user.device_id === deviceId) {
-                        alert('Logged in successfully!');
-                        // Store the user credentials in sessionStorage for future reference
-                        localStorage.setItem('username', username);
-                        localStorage.setItem('password', password);
-                        window.location.href = "Website.html";
-                    }
-                } else {
-                    // New user, create a new account
-                  
-alert('user not found')
-                }
-            } catch (err) {
-                console.error('Error during login:', err);
+                // Login successful
+                document.getElementById('message').innerText = "Login successful!";
+                localStorage.setItem('username', username);
+                localStorage.setItem('password', password);
+                setTimeout(() => window.location.href = "Website.html", 1000);
+            } catch (error) {
+                console.error("Error during login:", error);
+                document.getElementById('message').innerText = "An error occurred during login.";
             }
         }
+
 
         function generateDeviceId() {
-            return Math.random().toString(36).substr(2, 9);  // Generates a random device ID
+            return 'device-' + Math.random().toString(36).substr(2, 10);
         }
 
-        async function createUser(username, password, deviceId) {
-            const response = await fetch(`${supabaseUrl}/rest/v1/users?apikey=${supabaseKey}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify([
-                    { username, password, device_id: deviceId }
-                ])
-            });
-
-            const result = await response.json();
-            if (result.error) {
-                console.error('Error creating user:', result.error);
-            }
-        }
-
-        async function banDevice(deviceId) {
-            const response = await fetch(`${supabaseUrl}/rest/v1/banned_users?apikey=${supabaseKey}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify([{ device_id: deviceId }])
-            });
-
-            const responseBody = await response.text();
-            let result = null;
-            if (responseBody) {
-                result = JSON.parse(responseBody);
-            }
-
-            if (result && result.error) {
-                console.error('Error banning device:', result.error);
-            }
-        }
-
-        window.onload = function() {
-            const storedUsername = localStorage.getItem('username');
-            const storedPassword = localStorage.getItem('password');
-            const storedDeviceId = localStorage.getItem('device_id');
-
-            if (storedUsername && storedPassword && storedDeviceId) {
-                console.log('Logged in as: ' + storedUsername);
-                console.log('Password: ' + storedPassword);
-                console.log('Device ID: ' + storedDeviceId);
-            }
-        }
+        // Initialize the app
+        startApp();
     </script>
 </head>
 <body>
-    <h1>What is your name?</h1>
-    <input type="text" id="name" placeholder="Enter your name" required>
-    <input type="password" id="password" placeholder="Enter password (if needed)">
-    <button onclick="login()">Check!</button>
+    <h1>Login</h1>
+    <input type="text" id="username" placeholder="Enter your username">
+    <input type="password" id="password" placeholder="Enter your password">
+    <input type="submit" value="Login" onclick="login()">
     <div id="message"></div>
 </body>
 </html>
