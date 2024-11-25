@@ -235,8 +235,8 @@
     <script>
       // Function to check if the user has access
    window.onload = async function() {
-            const name = sessionStorage.getItem("username");
-            const password = sessionStorage.getItem("password");
+            const name = localStorage.getItem("username");
+            const password = localStorage.getItem("password");
 
             if (!name || !password) {
                 alert("Hey! No bypassing security! 😡");
