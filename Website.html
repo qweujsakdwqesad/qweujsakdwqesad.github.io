@@ -234,34 +234,58 @@
   <body>
     <script>
       // Function to check if the user has access
+      let accessTimer = null;
    async function accessCheck() {
         // Access Check Logic
 window.accessConfirmed = false; // Shared flag
 
-      // Access Check Logic
-      const name = localStorage.getItem("username");
-      const hasChecked = sessionStorage.getItem("hasChecked");
-      if (!hasChecked) {
-        // First time loading the page
-        const isJon = name === "Jon";
+   window.accessConfirmed = false; // Shared flag
+
+  const name = localStorage.getItem("username");
+  const hasChecked = sessionStorage.getItem("hasChecked");
+  if (!hasChecked) {
+    // First time loading the page
+    const isJon = name === "Jon";
+    if (isJon) {
+      // Jon has access to set the timer
+      const timerValue = prompt("Set access timer (in seconds):", "300"); // Prompt Jon for timer value
+      if (timerValue !== null && !isNaN(timerValue)) {
+        // Jon entered a valid timer value
+        sessionStorage.setItem("accessTimer", timerValue);
+        alert(`Access timer set for ${timerValue} seconds.`);
+        accessTimer = setTimeout(grantAccess, timerValue * 1000); // Start the timer
+      } else {
+        alert("Invalid timer value. Please enter a number.");
+      }
+    } else {
+      // Not Jon, check for existing timer
+      const timerValue = sessionStorage.getItem("accessTimer");
+      if (timerValue) {
+        alert(`Access timer is active for ${timerValue} seconds.`);
+        accessTimer = setTimeout(grantAccess, timerValue * 1000); // Start the timer
+      } else {
+        // No timer set, check for Jon's confirmation
         const confirmed = confirm("Hey! Has Jonathan confirmed you are allowed to be on this at this time?");
-        if (isJon && confirmed) {
-          // Jon confirmed, set access for everyone
+        if (confirmed) {
+          alert("Access granted!");
           window.accessConfirmed = true;
-          alert("Access granted for everyone!");
-        } else if (confirmed) {
-          // User clicked "Yes" but Jon hasn't confirmed
-          alert("Jon has not confirmed this yet you liar! 😠");
-          location.reload(); // Refresh the page 
         } else {
-          // User clicked "Cancel"
-          location.reload(); // Refresh the page
+          alert("Access not confirmed.");
+          location.reload(); 
         }
-        sessionStorage.setItem("hasChecked", true);
-      } else if (window.accessConfirmed) {
-        alert('passed the verification');
       }
     }
+    sessionStorage.setItem("hasChecked", true);
+  } else if (window.accessConfirmed) {
+    alert('passed the verification');
+  }
+}
+
+function grantAccess() {
+  window.accessConfirmed = true;
+  alert("Access granted!");
+}
+
     window.onload = async function() {
       const name = localStorage.getItem("username");
       const password = localStorage.getItem("password");
