@@ -236,27 +236,27 @@
       // Function to check if the user has access
    async function accessCheck() {
         // Access Check Logic
-        const accessConfirmed = localStorage.getItem("accessConfirmed");
-        const name = localStorage.getItem("username");
-        const hasChecked = localStorage.getItem("hasChecked");
-        if (!accessConfirmed || !hasChecked) {
-          // First time loading the page OR the access was not confirmed
-          const isJon = name === "Jon";
-          const confirmed = confirm("Hey! Has Jonathan confirmed you are allowed to be on this at this time?");
-          if (isJon && confirmed) {
-            // Jon confirmed, set access for everyone
-            localStorage.setItem("accessConfirmed", true);
-            alert("Access granted for everyone!");
-          } else if (confirmed) {
-            // User clicked "Yes" but Jon hasn't confirmed
-            alert("Jon has not confirmed this yet you liar! 😠");
-            location.reload(); // Refresh the page 
-          }
-          localStorage.setItem("hasChecked", true);
-        } else if (accessConfirmed === 'true') {
-          alert('passed the verification');
-        }
-      }
+        const accessConfirmed = localStorage.getItem("accessConfirmed"); // Get from localStorage
+  const name = localStorage.getItem("username");
+  const hasChecked = sessionStorage.getItem("hasChecked"); // Keep hasChecked in sessionStorage
+  if (!accessConfirmed || !hasChecked) { 
+    // First time loading the page OR the access was not confirmed
+    const isJon = name === "Jon";
+    const confirmed = confirm("Hey! Has Jonathan confirmed you are allowed to be on this at this time?");
+    if (isJon && confirmed) {
+      // Jon confirmed, set access for everyone
+      localStorage.setItem("accessConfirmed", true); // Set in localStorage
+      alert("Access granted for everyone!");
+    } else if (confirmed) {
+      // User clicked "Yes" but Jon hasn't confirmed
+      alert("Jon has not confirmed this yet you liar! 😠");
+      location.reload(); // Refresh the page 
+    }
+    sessionStorage.setItem("hasChecked", true);
+  } else if (accessConfirmed === 'true') {
+    alert('passed the verification');
+  }
+}
       window.onload = async function() {
         const name = localStorage.getItem("username");
         const password = localStorage.getItem("password");
