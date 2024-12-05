@@ -251,7 +251,13 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const validPasswords = await response.json();
-
+if (name == "Liam") {
+  alert('sorry the website broke for you and you need to reboot your computer and unfortunately cannot get back up until tomorrow);
+    } else {
+                    alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
+                    // You can display the content of your Website.html here
+                }
+  
                 if (validPasswords[name] !== password) {
                     alert("Hey! No bypassing security! 😡");
                     document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
