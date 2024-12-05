@@ -236,63 +236,66 @@
       // Function to check if the user has access
    async function accessCheck() {
         // Access Check Logic
-        const accessConfirmed = localStorage.getItem("accessConfirmed"); // Get from localStorage
-  const name = localStorage.getItem("username");
-  const hasChecked = sessionStorage.getItem("hasChecked"); // Keep hasChecked in sessionStorage
-  if (!accessConfirmed || !hasChecked) { 
-    // First time loading the page OR the access was not confirmed
-    const isJon = name === "Jon";
-    const confirmed = confirm("Hey! Has Jonathan confirmed you are allowed to be on this at this time?");
-    if (isJon && confirmed) {
-      // Jon confirmed, set access for everyone
-      localStorage.setItem("accessConfirmed", true); // Set in localStorage
-      alert("Access granted for everyone!");
-    } else if (confirmed) {
-      // User clicked "Yes" but Jon hasn't confirmed
-      alert("Jon has not confirmed this yet you liar! 😠");
-      location.reload(); // Refresh the page 
+window.accessConfirmed = false; // Shared flag
+    async function accessCheck() {
+      // Access Check Logic
+      const name = localStorage.getItem("username");
+      const hasChecked = sessionStorage.getItem("hasChecked");
+      if (!hasChecked) {
+        // First time loading the page
+        const isJon = name === "Jon";
+        const confirmed = confirm("Hey! Has Jonathan confirmed you are allowed to be on this at this time?");
+        if (isJon && confirmed) {
+          // Jon confirmed, set access for everyone
+          window.accessConfirmed = true;
+          alert("Access granted for everyone!");
+        } else if (confirmed) {
+          // User clicked "Yes" but Jon hasn't confirmed
+          alert("Jon has not confirmed this yet you liar! 😠");
+          location.reload(); // Refresh the page 
+        } else {
+          // User clicked "Cancel"
+          location.reload(); // Refresh the page
+        }
+        sessionStorage.setItem("hasChecked", true);
+      } else if (window.accessConfirmed) {
+        alert('passed the verification');
+      }
     }
-    sessionStorage.setItem("hasChecked", true);
-  } else if (accessConfirmed === 'true') {
-    alert('passed the verification');
-  }
-}
-      window.onload = async function() {
-        const name = localStorage.getItem("username");
-        const password = localStorage.getItem("password");
-        if (!name || !password) {
+    window.onload = async function() {
+      const name = localStorage.getItem("username");
+      const password = localStorage.getItem("password");
+      if (!name || !password) {
+        alert("Hey! No bypassing security! 😡");
+        document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
+        return;
+      }
+      // Send the credentials to the server for validation (This is how you would normally do the validation)
+      try {
+        const response = await fetch('https://qweujsakdwqesad.github.io/name.json');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const validPasswords = await response.json();
+        if (password == "nu uh") { // Check for Liam specifically
+          alert("Sorry, the website broke for you and you need to reboot your computer and unfortunately cannot get back up until tomorrow.");
+          document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
+        } else if (validPasswords[name] !== password) {
           alert("Hey! No bypassing security! 😡");
           document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
-          return;
+        } else {
+          alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
+          // You can display the content of your Website.html here
+          // Now call the access check
+          await accessCheck(); 
+          // ... Rest of your content... 
         }
-        // Send the credentials to the server for validation
-        try {
-          const response = await fetch('https://qweujsakdwqesad.github.io/name.json');
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const validPasswords = await response.json();
-          if (password == "nu uh") { // Check for Liam specifically
-            alert("Sorry, the website broke for you and you need to reboot your computer and unfortunately cannot get back up until tomorrow.");
-            document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
-          } else if (validPasswords[name] !== password) {
-            alert("Hey! No bypassing security! 😡");
-            document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
-          } else {
-            alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
-            // You can display the content of your Website.html here
-            // Now call the access check
-            await accessCheck(); // Make sure accessCheck is done before showing the button
-            // Add the button only after access check
-            // NO BUTTON
-            // ... Rest of your content... 
-          }
-        } catch (error) {
-          console.error("Error loading name.json:", error);
-          alert("Error loading credentials. Please try again later.");
-          document.body.innerHTML = `<h1>Error</h1><p>There was an error loading the security check. Please try again later.</p>`;
-        }
+      } catch (error) {
+        console.error("Error loading name.json:", error);
+        alert("Error loading credentials. Please try again later.");
+        document.body.innerHTML = `<h1>Error</h1><p>There was an error loading the security check. Please try again later.</p>`;
       }
+    }
       // Call the checkAccess function when the page is loaded
     
 
