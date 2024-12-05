@@ -253,7 +253,7 @@
     }
     const validPasswords = await response.json();
 
-    if (name === "Liam") { // Check for Liam specifically
+    if (name === "liam") { // Check for Liam specifically
       alert("Sorry, the website broke for you and you need to reboot your computer and unfortunately cannot get back up until tomorrow.");
       document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
     } else if (validPasswords[name] !== password) {
