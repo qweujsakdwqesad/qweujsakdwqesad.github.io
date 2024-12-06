@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Access Confirmation</title>
+</head>
+<body>
+  <h1>Access Confirmation</h1>
+  <p>Enter the password to grant access:</p>
+  <input type="password" id="passwordInput">
+  <button id="confirmAccess">Confirm Access</button>
+  <script>
+    const confirmButton = document.getElementById("confirmAccess");
+    const passwordInput = document.getElementById("passwordInput");
+
+    confirmButton.addEventListener("click", async () => {
+      const password = passwordInput.value;
+      try {
+        const response = await fetch("password.txt");
+        const correctPassword = await response.text();
+
+        if (password === correctPassword) {
+          sessionStorage.setItem("accessConfirmed", true); // Update in sessionStorage
+          alert("Access granted!");
+          window.close();
+        } else {
+          alert("Incorrect password. Access denied.");
+        }
+      } catch (error) {
+        console.error("Error fetching password file:", error);
+        alert("An error occurred. Please try again later.");
+      }
+    });
+  </script>
+</body>
+</html>
