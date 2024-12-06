@@ -257,6 +257,7 @@ async function accessCheck() {
       // User clicked "Cancel" or "No"
       if (isJon) {
         alert("Access not granted. Please try again.");
+        location.reload();
       } else {
         alert("Jon has not confirmed this yet you liar! 😠");
         location.reload(); // Refresh the page 
