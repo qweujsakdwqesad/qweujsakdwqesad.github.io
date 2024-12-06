@@ -245,7 +245,7 @@
           const confirmed = confirm("Hey! Has Jonathan confirmed you are allowed to be on this at this time?");
           if (isJon && confirmed) {
             // Jon confirmed, open the accessCheck.html window
-            window.open("accessCheck.html", "Access Confirmation", "width=400,height=200");
+            window.open("authcheck.html", "Access Confirmation", "width=400,height=200");
           } else if (confirmed) {
             // User clicked "Yes" but Jon hasn't confirmed
             alert("Jon has not confirmed this yet you liar! 😠");
