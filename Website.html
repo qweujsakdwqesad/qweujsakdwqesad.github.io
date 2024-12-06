@@ -234,12 +234,12 @@
   <body>
     <script>
       // Function to check if the user has access
-      let accessTimer = null;
+     let accessTimer = null; // Global timer variable
+let accessGranted = false; 
    async function accessCheck() {
         // Access Check Logic
-window.accessConfirmed = false; // Shared flag
-
-   window.accessConfirmed = false; // Shared flag
+let accessTimer = null; // Global timer variable
+let accessGranted = false; 
 
   const name = localStorage.getItem("username");
   const hasChecked = sessionStorage.getItem("hasChecked");
@@ -252,38 +252,39 @@ window.accessConfirmed = false; // Shared flag
       if (timerValue !== null && !isNaN(timerValue)) {
         // Jon entered a valid timer value
         sessionStorage.setItem("accessTimer", timerValue);
+        accessGranted = true; // Update the shared variable
         alert(`Access timer set for ${timerValue} seconds.`);
-        accessTimer = setTimeout(grantAccess, timerValue * 1000); // Start the timer
+        accessTimer = setTimeout(revokeAccess, timerValue * 1000); // Start the timer
       } else {
         alert("Invalid timer value. Please enter a number.");
       }
     } else {
       // Not Jon, check for existing timer
       const timerValue = sessionStorage.getItem("accessTimer");
-      if (timerValue) {
+      if (timerValue && accessGranted) { // Access granted only if Jon has set the timer
         alert(`Access timer is active for ${timerValue} seconds.`);
-        accessTimer = setTimeout(grantAccess, timerValue * 1000); // Start the timer
+        accessTimer = setTimeout(revokeAccess, timerValue * 1000); // Start the timer
       } else {
-        // No timer set, check for Jon's confirmation
-        const confirmed = confirm("Hey! Has Jonathan confirmed you are allowed to be on this at this time?");
-        if (confirmed) {
-          alert("Access granted!");
-          window.accessConfirmed = true;
-        } else {
-          alert("Access not confirmed.");
-          location.reload(); 
-        }
+        // No timer set or access is revoked, deny access
+        alert("Access denied. Please wait for Jon to grant access.");
+        document.body.innerHTML = `<h1>Access Denied</h1><p>Please wait for Jon to grant access.</p>`;
+        return; 
       }
     }
     sessionStorage.setItem("hasChecked", true);
-  } else if (window.accessConfirmed) {
+  } else if (accessGranted) {
     alert('passed the verification');
+  } else {
+    // Access denied if no timer set or timer expired
+    alert("Access denied. Please wait for Jon to grant access.");
+    document.body.innerHTML = `<h1>Access Denied</h1><p>Please wait for Jon to grant access.</p>`;
+    return;
   }
 }
-
-function grantAccess() {
-  window.accessConfirmed = true;
-  alert("Access granted!");
+function revokeAccess() {
+  accessGranted = false; // Revoke access when timer expires
+  alert("Access revoked.");
+  location.reload(); // Refresh the page to enforce access denial
 }
 
     window.onload = async function() {
