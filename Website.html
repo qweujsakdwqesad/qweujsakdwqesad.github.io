@@ -234,28 +234,10 @@
   <body>
     <script>
       // Function to check if the user has access
- async function accessCheck() {
+
         // Access Check Logic
-        const accessConfirmed = sessionStorage.getItem("accessConfirmed"); // Get from sessionStorage
-        const name = localStorage.getItem("username");
-        const hasChecked = localStorage.getItem("hasChecked");
-        if (!accessConfirmed || !hasChecked) {
-          // First time loading the page OR the access was not confirmed
-          const isJon = name === "Jon";
-          const confirmed = confirm("Hey! Has Jonathan confirmed you are allowed to be on this at this time?");
-          if (isJon && confirmed) {
-            // Jon confirmed, open the accessCheck.html window
-            window.open("authcheck.html", "Access Confirmation", "width=400,height=200");
-          } else if (confirmed) {
-            // User clicked "Yes" but Jon hasn't confirmed
-            alert("Jon has not confirmed this yet you liar! 😠");
-            location.reload(); // Refresh the page 
-          }
-          localStorage.setItem("hasChecked", true);
-        } else if (accessConfirmed === 'true') {
-          alert('passed the verification');
-        }
-      }
+       
+   
 
 
 
@@ -287,7 +269,7 @@
             alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
             // You can display the content of your Website.html here
             // Now call the access check
-            await accessCheck(); // Make sure accessCheck is done before showing the button
+         // Make sure accessCheck is done before showing the button
             // Add the button only after access check
             // NO BUTTON
             // ... Rest of your content... 
