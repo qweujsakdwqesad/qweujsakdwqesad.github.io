@@ -234,46 +234,29 @@
   <body>
     <script>
       // Function to check if the user has access
-let accessConfirmed = false; // Shared access status, initially false
-// Function to check if the user has access
-async function accessCheck() {
-  // Access Check Logic
-  const name = localStorage.getItem("username");
-  const hasChecked = sessionStorage.getItem("hasChecked");
-  // If Jon's tab closes, reset access
-  if (sessionStorage.getItem("accessConfirmed") === null) {
-    accessConfirmed = false; // Reset access
-  }
-  if (!accessConfirmed || !hasChecked) {
-    // First time loading the page OR the access was not confirmed
-    const isJon = name === "Jon";
-    const confirmed = confirm("Hey! Has Jonathan confirmed you are allowed to be on this at this time?");
-    if (isJon && confirmed) {
-      // Jon confirmed, set access for everyone
-      sessionStorage.setItem("accessConfirmed", true);
-      accessConfirmed = true; // Update the shared variable
-      alert("Access granted for everyone!");
-    } else {
-      // User clicked "Cancel" or "No"
-      if (isJon) {
-        alert("Access not granted. Please try again.");
-        location.reload();
-      } else {
-        alert("Jon has not confirmed this yet you liar! 😠");
-        location.reload(); // Refresh the page 
+ async function accessCheck() {
+        // Access Check Logic
+        const accessConfirmed = sessionStorage.getItem("accessConfirmed"); // Get from sessionStorage
+        const name = localStorage.getItem("username");
+        const hasChecked = localStorage.getItem("hasChecked");
+        if (!accessConfirmed || !hasChecked) {
+          // First time loading the page OR the access was not confirmed
+          const isJon = name === "Jon";
+          const confirmed = confirm("Hey! Has Jonathan confirmed you are allowed to be on this at this time?");
+          if (isJon && confirmed) {
+            // Jon confirmed, open the accessCheck.html window
+            window.open("accessCheck.html", "Access Confirmation", "width=400,height=200");
+          } else if (confirmed) {
+            // User clicked "Yes" but Jon hasn't confirmed
+            alert("Jon has not confirmed this yet you liar! 😠");
+            location.reload(); // Refresh the page 
+          }
+          localStorage.setItem("hasChecked", true);
+        } else if (accessConfirmed === 'true') {
+          alert('passed the verification');
+        }
       }
-    }
-    localStorage.setItem("hasChecked", true);
-  } else if (accessConfirmed) {
-    alert('passed the verification');
-  }
-}
-// Event listener for when Jon's tab is closed
-window.addEventListener("unload", function () {
-  if (localStorage.getItem("username") === "Jon") {
-    sessionStorage.removeItem("accessConfirmed"); // Clear access when Jon closes the tab
-  }
-});
+
 
 
   // Send the credentials to the server for validation
