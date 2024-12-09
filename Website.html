@@ -272,7 +272,7 @@
   // Approve access for Ethan and Liam
   function approveAccess() {
     jonConfirmed = true;
-    alert("Jon has confirmed access!");
+    alert("You has confirmed access!");
   }
 
   // Reset Jon's confirmation on tab close
@@ -299,7 +299,7 @@
       // For Ethan and Liam, prompt Jon confirmation
       if (["Ethan", "Liam"].includes(name)) {
         const isConfirmed = confirm(
-          "Hey! Has Jon confirmed you are allowed to be on this time?"
+          "Hey! Has the site owner confirmed you are allowed to be on this time?"
         );
         if (isConfirmed) {
           if (jonConfirmed) {
