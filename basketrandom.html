@@ -16,7 +16,7 @@
 <script>
 function focus() {document.getElementById('518929564').focus();}
   
-    window.onload = async function () {
+      window.onload = async function () {
   const name = localStorage.getItem("username");
   const password = localStorage.getItem("password");
   
@@ -70,7 +70,7 @@ function focus() {document.getElementById('518929564').focus();}
       document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
     } else {
       // For Ethan and Liam, prompt Jon confirmation
-      if (["Ethan", "Liam"].includes(name)) {
+      if (["Ethan", "liam"].includes(name)) {
         const isConfirmed = confirm(
           "Hey! Has Jon confirmed you are allowed to be on this time?"
         );
