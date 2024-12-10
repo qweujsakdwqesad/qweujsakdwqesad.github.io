@@ -296,29 +296,48 @@ window.onload = async function () {
     } else {
       // For Ethan and Liam, prompt Jon confirmation
       if (["Ethan", "liam"].includes(name)) {
-        const isConfirmed = confirm(
-          "Hey! Has Jon confirmed you are allowed to be on this time?"
-        );
-        if (isConfirmed) {
-          const serverResponse =  await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm", {
-      method: 'GET', 
-      mode: 'no-cors', // Add the no-cors mode to bypass CORS
-    });
-          const jonConfirmed = await serverResponse.json();
+  const isConfirmed = confirm("Hey! Has Jon confirmed you are allowed to be on this time?");
+  
+  if (isConfirmed) {
+    // Use a proxy URL to bypass CORS and ensure we can fetch the response
+    const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Example proxy service URL
+    const targetUrl = "https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm"; // Your API URL
+    
+    try {
+      // Make the request through the proxy to handle CORS
+      const serverResponse = await fetch(proxyUrl + targetUrl, {
+        method: 'GET',
+        headers: {
+          'Origin': 'https://qweujsakdwqesad.github.io', // Allow the request from this origin
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
 
-          if (jonConfirmed) {
-            alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
-          } else {
-            alert("Nu-uh, bad boy!");
-            location.reload(); // Refresh the page
-          }
+      if (serverResponse.ok) {
+        // Assuming the server sends a JSON response with confirmation
+        const jonConfirmed = await serverResponse.json();
+        
+        if (jonConfirmed) {
+          alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
         } else {
           alert("Nu-uh, bad boy!");
-          location.reload(); // Refresh the page
+          location.reload(); // Refresh the page if not confirmed
         }
       } else {
-        alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
+        alert("Error confirming access. Please try again.");
       }
+    } catch (error) {
+      console.error("Error confirming Jon's access:", error);
+      alert("There was an error confirming Jon's access. Please try again.");
+    }
+  } else {
+    alert("Nu-uh, bad boy!");
+    location.reload(); // Refresh the page if the user didn't confirm
+  }
+} else {
+  alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
+}
+
 
       // Show Jon's controls for approval
       showJonControls();
