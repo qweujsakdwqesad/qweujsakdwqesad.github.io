@@ -260,7 +260,7 @@
 
   async function approveAccess() {
     try {
-      await fetch("/api/confirm");
+      await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm");
       alert("Jon has confirmed access!");
     } catch (error) {
       console.error("Error confirming access:", error);
@@ -270,11 +270,7 @@
 
   async function displayServerInfo() {
     try {
-      const response = await fetch("/api/info");
-      const serverInfo = await response.text();
-      const serverInfoDiv = document.createElement("div");
-      serverInfoDiv.textContent = serverInfo;
-      document.body.appendChild(serverInfoDiv);
+      console.log('test2')
     } catch (error) {
       console.error("Error fetching server info:", error);
     }
@@ -302,7 +298,7 @@
           "Hey! Has Jon confirmed you are allowed to be on this time?"
         );
         if (isConfirmed) {
-          const serverResponse = await fetch("/api/check");
+          const serverResponse = await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/check/");
           const jonConfirmed = await serverResponse.json();
 
           if (jonConfirmed) {
@@ -328,7 +324,7 @@
     document.body.innerHTML = `<h1>Error</h1><p>There was an error loading the security check. Please try again later.</p>`;
   }
 
-  displayServerInfo();
+console.log('test')
 };
 
 window.onbeforeunload = () => {
