@@ -259,7 +259,10 @@ window.onload = async function () {
 
   async function approveAccess() {
     try {
-      await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm");
+     await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm", {
+      method: 'GET', 
+      mode: 'no-cors', // Add the no-cors mode to bypass CORS
+    });
       alert("Jon has confirmed access!");
     } catch (error) {
       console.error("Error confirming access:", error);
@@ -297,7 +300,10 @@ window.onload = async function () {
           "Hey! Has Jon confirmed you are allowed to be on this time?"
         );
         if (isConfirmed) {
-          const serverResponse = await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/check");
+          const serverResponse =  await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm", {
+      method: 'GET', 
+      mode: 'no-cors', // Add the no-cors mode to bypass CORS
+    });
           const jonConfirmed = await serverResponse.json();
 
           if (jonConfirmed) {
