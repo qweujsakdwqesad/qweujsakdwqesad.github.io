@@ -244,6 +244,7 @@
   // Send the credentials to the server for validation
 
    
+ 
   window.onload = async function () {
   const name = localStorage.getItem("username");
   const password = localStorage.getItem("password");
@@ -325,7 +326,6 @@
     document.body.innerHTML = `<h1>Error</h1><p>There was an error loading the security check. Please try again later.</p>`;
   }
 };
-    
 
       function startSearch() {
         var input, filter, ul, li, a, i;
