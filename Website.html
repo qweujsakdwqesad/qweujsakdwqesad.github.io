@@ -245,23 +245,14 @@
 
    
  
-  window.onload = async function () {
+ window.onload = async function () {
   const name = localStorage.getItem("username");
   const password = localStorage.getItem("password");
-  
+
   if (!name || !password) {
     alert("Hey! No bypassing security! 😡");
     document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
     return;
-  }
-
-  // Shared variable to simulate Jon's confirmation
-  let jonConfirmed = false;
-
-  // Approve access for Ethan and Liam
-  function approveAccess() {
-    jonConfirmed = true;
-    alert("Jon has confirmed access!");
   }
 
   // Show Jon's approval button only for Jon
@@ -271,16 +262,33 @@
       const jonControls = document.createElement("div");
       const approveButton = document.createElement("button");
       approveButton.textContent = "Jon: Approve Access";
-      approveButton.onclick = approveAccess; // Attach the function directly
+      approveButton.onclick = approveAccess;
       jonControls.appendChild(approveButton);
       document.body.appendChild(jonControls);
     }
   }
 
-  // Reset Jon's confirmation on tab close
-  window.onbeforeunload = () => {
-    jonConfirmed = false;
-  };
+  async function approveAccess() {
+    try {
+      await fetch("/api/confirm");
+      alert("Jon has confirmed access!");
+    } catch (error) {
+      console.error("Error confirming access:", error);
+      alert("There was an error confirming access. Please try again.");
+    }
+  }
+
+  async function displayServerInfo() {
+    try {
+      const response = await fetch("/api/info");
+      const serverInfo = await response.text();
+      const serverInfoDiv = document.createElement("div");
+      serverInfoDiv.textContent = serverInfo;
+      document.body.appendChild(serverInfoDiv);
+    } catch (error) {
+      console.error("Error fetching server info:", error);
+    }
+  }
 
   try {
     const response = await fetch("https://qweujsakdwqesad.github.io/name.json");
@@ -304,22 +312,23 @@
           "Hey! Has Jon confirmed you are allowed to be on this time?"
         );
         if (isConfirmed) {
+          const serverResponse = await fetch("/api/check");
+          const jonConfirmed = await serverResponse.json();
+
           if (jonConfirmed) {
             alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
           } else {
             alert("Nu-uh, bad boy!");
             location.reload(); // Refresh the page
           }
-          
         } else {
-            alert("Nu-uh, bad boy!");
-            location.reload(); // Refresh the page
-     
+          alert("Nu-uh, bad boy!");
+          location.reload(); // Refresh the page
         }
       } else {
         alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
       }
-      
+
       // Show Jon's controls for approval
       showJonControls();
     }
@@ -328,7 +337,14 @@
     alert("Error loading credentials. Please try again later.");
     document.body.innerHTML = `<h1>Error</h1><p>There was an error loading the security check. Please try again later.</p>`;
   }
+
+\
 };
+
+window.onbeforeunload = () => {
+  fetch("/api/reset");
+};
+
 
       function startSearch() {
         var input, filter, ul, li, a, i;
