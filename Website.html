@@ -234,8 +234,7 @@
   <body>
     <script>
       // Function to check if the user has access
-
- window.onload = async function () {
+window.onload = async function () {
   const name = localStorage.getItem("username");
   const password = localStorage.getItem("password");
 
@@ -270,7 +269,7 @@
 
   async function displayServerInfo() {
     try {
-      console.log('test2')
+     console.log('test2')
     } catch (error) {
       console.error("Error fetching server info:", error);
     }
@@ -298,7 +297,7 @@
           "Hey! Has Jon confirmed you are allowed to be on this time?"
         );
         if (isConfirmed) {
-          const serverResponse = await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/check/");
+          const serverResponse = await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/check");
           const jonConfirmed = await serverResponse.json();
 
           if (jonConfirmed) {
@@ -324,12 +323,13 @@
     document.body.innerHTML = `<h1>Error</h1><p>There was an error loading the security check. Please try again later.</p>`;
   }
 
-console.log('test')
+  displayServerInfo();
 };
 
 window.onbeforeunload = () => {
-  fetch("/api/reset");
+  fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/reset");
 };
+
 
 
       function startSearch() {
