@@ -295,33 +295,26 @@ window.onload = async function () {
       document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
     } else {
       // For Ethan and Liam, prompt Jon confirmation
-      if (["Ethan", "liam"].includes(name)) {
+    if (["Ethan", "liam"].includes(name)) {
   const isConfirmed = confirm("Hey! Has Jon confirmed you are allowed to be on this time?");
   
   if (isConfirmed) {
-    // Use a proxy URL to bypass CORS and ensure we can fetch the response
-    const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Example proxy service URL
-    const targetUrl = "https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm"; // Your API URL
-    
     try {
-      // Make the request through the proxy to handle CORS
-      const serverResponse = await fetch(proxyUrl + targetUrl, {
+      const serverResponse = await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm", {
         method: 'GET',
         headers: {
-          'Origin': 'https://qweujsakdwqesad.github.io', // Allow the request from this origin
-          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/json',
         },
       });
 
       if (serverResponse.ok) {
-        // Assuming the server sends a JSON response with confirmation
-        const jonConfirmed = await serverResponse.json();
-        
+        const { jonConfirmed } = await serverResponse.json();
+
         if (jonConfirmed) {
           alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
         } else {
           alert("Nu-uh, bad boy!");
-          location.reload(); // Refresh the page if not confirmed
+          location.reload(); // Refresh the page
         }
       } else {
         alert("Error confirming access. Please try again.");
