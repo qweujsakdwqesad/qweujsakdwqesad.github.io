@@ -27,7 +27,16 @@ height: 100%;
     const reader = new FileReader();
 
     reader.onload = (event) => {
-      objectTag.data = event.target.result;
+      // Upload the file to Replit Object Storage
+      fetch('/upload', {
+        method: 'POST',
+        body: file
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Set the data attribute of the object tag to the URL
+        objectTag.data = data.url; 
+      });
     };
 
     reader.readAsDataURL(file);
