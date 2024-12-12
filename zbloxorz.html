@@ -9,8 +9,30 @@ height: 100%;
 }
 </style>
 
+    <form action="">
+  <label for="myfile">Select a file:</label>
+  <input type="file" id="myfile" name="myfile"><br><br>
+  <input type="submit" value="Submit">
+</form>
+    
 <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
-<object data='super-mario-bros-crossover-3.swf' class='full'></object>
+<object data='' class='full' id="myObject"></object>
+
+<script>
+  const fileInput = document.getElementById('myfile');
+  const objectTag = document.getElementById('myObject');
+
+  fileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      objectTag.data = event.target.result;
+    };
+
+    reader.readAsDataURL(file);
+  });
+</script>
 
 </body>
 </html>
