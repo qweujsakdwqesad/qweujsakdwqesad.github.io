@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload SWF File</title>
+</head>
+<body>
+  <form id="uploadForm" action="https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/upload" method="POST" enctype="multipart/form-data" target="uploadFrame">
+    <input type="file" name="file" accept=".swf">
+    <button type="submit">Upload</button>
+  </form>
+  <iframe id="uploadFrame" name="uploadFrame" style="display:none;"></iframe>
+  <div id="swfContainer"></div>
+  <script>
+    document.getElementById('uploadForm').onsubmit = function() {
+      setTimeout(() => {
+        const swfContainer = document.getElementById('swfContainer');
+        swfContainer.innerHTML = `<object type="application/x-shockwave-flash" data="https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/uploads/${document.querySelector('input[type=file]').files[0].name}" width="800" height="600">
+          <param name="movie" value="https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/uploads/${document.querySelector('input[type=file]').files[0].name}" />
+        </object>`;
+      }, 2000); // Wait for 2 seconds for the upload to complete (adjust as needed)
+      return true;
+    };
+  </script>
+  <script src="https://ruffle.rs/demo/build/ruffle.js"></script>
+</body>
+</html>
