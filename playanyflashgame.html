@@ -17,39 +17,15 @@
          <li>Have fun!</li>
       </ol>
     </p>
-
-    <a href="/" style='font-size: 2vw;'>Back To Home Page</a>
-    <button onclick="openFullscreen('518929564')" style='font-size: 2vw;'>Fullscreen Mode</button>    
-
-    <!-- SWF file upload section -->
-    <form id="swfUploadForm" enctype="multipart/form-data">
-      <label for="swfFile" style="font-size: 1.5vw;">Upload SWF File:</label>
-      <input type="file" id="swfFile" name="swfFile" accept=".swf" style="font-size: 1.5vw;"/>
-      <button type="submit" style="font-size: 1.5vw;">Upload and Play</button>
-    </form>
-
-    <iframe style="height: 95vh; width: 95vw;" scrolling="no" frameborder="0" id="518929564" allowtransparency="true" src=""></iframe>
-
-    <script src="fullScreen.js"></script>
-    <script>
-      function focus() {
-        document.getElementById('518929564').focus();
-      }
-
-      // Handle SWF file upload and display it in the iframe
-      document.getElementById('swfUploadForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        var fileInput = document.getElementById('swfFile');
-        var file = fileInput.files[0];
-        
-        if (file && file.name.endsWith('.swf')) {
-          var fileURL = URL.createObjectURL(file);
-          document.getElementById('518929564').src = fileURL; // Set the iframe source to the uploaded SWF file
-        } else {
-          alert('Please upload a valid SWF file.');
-        }
-      });
-    </script>
-  </body>
+<body onload='focus()'>
+<script src="load.js"></script>
+         <a href="/" style='font-size: 2vw;'>Back To Home Page</a>
+         <button onclick="openFullscreen('518929564')" style='font-size: 2vw;'>Fullscreen Mode</button>      
+<iframe style='height: 95vh; width: 95vw;' scrolling="no" frameborder="0" id="518929564" allowtransparency="true" 
+        src="https://supreme-space-computing-machine-wrgjw9prp79ph5995-3001.app.github.dev/"></iframe>
+<script src="fullScreen.js"></script>
+<script>
+function focus() {document.getElementById('518929564').focus();}
+</script>
+</body>
 </html>
