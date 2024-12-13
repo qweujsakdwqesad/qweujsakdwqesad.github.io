@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Upload SWF File</title>
+  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 </head>
 <body>
   <form id="uploadForm" action="https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/upload" method="POST" enctype="multipart/form-data" target="uploadFrame">
@@ -13,15 +14,20 @@
   <div id="swfContainer"></div>
   <script>
     document.getElementById('uploadForm').onsubmit = function() {
+      console.log('Form submitted');
       setTimeout(() => {
         const swfContainer = document.getElementById('swfContainer');
-        swfContainer.innerHTML = `<object type="application/x-shockwave-flash" data="https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/uploads/${document.querySelector('input[type=file]').files[0].name}" width="800" height="600">
-          <param name="movie" value="https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/uploads/${document.querySelector('input[type=file]').files[0].name}" />
-        </object>`;
+        const fileInput = document.querySelector('input[type=file]');
+        if (fileInput.files.length > 0) {
+          const filename = fileInput.files[0].name;
+          console.log('File selected:', filename);
+          swfContainer.innerHTML = `<object data="https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/uploads/${filename}" class="full" id="myObject" width="800" height="600"></object>`;
+        } else {
+          console.error('No file selected');
+        }
       }, 2000); // Wait for 2 seconds for the upload to complete (adjust as needed)
       return true;
     };
   </script>
-  <script src="https://ruffle.rs/demo/build/ruffle.js"></script>
 </body>
 </html>
