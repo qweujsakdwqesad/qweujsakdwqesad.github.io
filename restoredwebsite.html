@@ -331,7 +331,7 @@ window.onload = async function () {
 async function accessCheck() {
   window.accessConfirmed = false;
 
-  const response = await fetch('https://masdasdwqe.pythonanywhere.com/');
+  const response = await fetch('https://masdasdwqe.pythonanywhere.com/check');
   const data = await response.json();
 
   if (data.status === 'failure') {
