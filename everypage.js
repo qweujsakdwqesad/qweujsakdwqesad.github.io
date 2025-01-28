@@ -1,6 +1,6 @@
 // nu uh
 
-window.onload = async function () {
+async function checkAccess() {
   const name = localStorage.getItem("username");
   const password = localStorage.getItem("password");
 
@@ -28,4 +28,7 @@ window.onload = async function () {
     alert("Error loading credentials. Please try again later.");
     document.body.innerHTML = `<h1>Error</h1><p>There was an error loading the security check. Please try again later.</p>`;
   }
-};
+}
+
+// Call the function to check access
+checkAccess();
