@@ -1,4 +1,4 @@
-
+// nu uh
 
 window.onload = async function () {
   await mainFunction();
@@ -88,55 +88,52 @@ async function mainFunction() {
     }
 
     const validPasswords = await response.json();
-    if (name === "asdasdasd") {
-      alert(
-        "The site is going under maintenance for you. To prevent data loss, do not log back in until the migration is complete."
-      );
-      document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
-    } else if (validPasswords[name] !== password) {
+    if (validPasswords[name] !== password) {
       alert("Hey! No bypassing security! 😡");
       document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
+      location.reload(); // Refresh the page if the username and password don't match
+      return;
     } else {
-      // For Ethan and Liam, prompt Jon confirmation
-      if (["Ethan", "liam"].includes(name)) {
-        const isConfirmed = confirm("Hey! Has Jon confirmed you are allowed to be on this time?");
-  
-        if (isConfirmed) {
-          try {
-            const serverResponse = await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm", {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
+      alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
+    }
 
-            if (serverResponse.ok) {
-              const { jonConfirmed } = await serverResponse.json();
+    // For Ethan and Liam, prompt Jon confirmation
+    if (["Ethan", "liam"].includes(name)) {
+      const isConfirmed = confirm("Hey! Has Jon confirmed you are allowed to be on this time?");
 
-              if (jonConfirmed) {
-                alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
-              } else {
-                alert("Nu-uh, bad boy!");
-                location.reload(); // Refresh the page
-              }
+      if (isConfirmed) {
+        try {
+          const serverResponse = await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm", {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (serverResponse.ok) {
+            const { jonConfirmed } = await serverResponse.json();
+
+            if (jonConfirmed) {
+              alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
             } else {
-              alert("Error confirming access. Please try again.");
+              alert("Nu-uh, bad boy!");
+              location.reload(); // Refresh the page
             }
-          } catch (error) {
-            console.error("Error confirming Jon's access:", error);
-            alert("There was an error confirming Jon's access. Please try again.");
+          } else {
+            alert("Error confirming access. Please try again.");
           }
-        } else {
-          alert("Nu-uh, bad boy!");
-          location.reload(); // Refresh the page if the user didn't confirm
+        } catch (error) {
+          console.error("Error confirming Jon's access:", error);
+          alert("There was an error confirming Jon's access. Please try again.");
         }
       } else {
-        alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
+        alert("Nu-uh, bad boy!");
+        location.reload(); // Refresh the page if the user didn't confirm
       }
-
-      // Show Jon's controls for approval
-      showJonControls();
     }
+
+    // Show Jon's controls for approval
+    showJonControls();
   } catch (error) {
     console.error("Error loading name.json:", error);
     alert("Error loading credentials. Please try again later.");
