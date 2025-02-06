@@ -361,7 +361,7 @@ async function accessCheck() {
 }
 
 // Call this function when the page loads
-accessCheck();
+
 
 
   // Show Jon's approval button only for Jon
@@ -386,12 +386,12 @@ accessCheck();
   }
 
   try {
-    const response = await fetch("https://qweujsakdwqesad.github.io/name.json");
-    if (!response.ok) {
+    const response2 = await fetch("https://qweujsakdwqesad.github.io/name.json");
+    if (!response2.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const validPasswords = await response.json();
+    const validPasswords = await response2.json();
     if (name === "asdasdasd") {
       alert(
         "The site is going under maintenance for you. To prevent data loss, do not log back in until the migration is complete."
