@@ -403,42 +403,9 @@ accessCheck();
     } else {
       // For Ethan and Liam, prompt Jon confirmation
     if (["Ethan", "liam"].includes(name)) {
-  const isConfirmed = confirm("Hey! Has Jon confirmed you are allowed to be on this time?");
-  
-  if (isConfirmed) {
-    try {
-      const serverResponse = await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm", {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    accessCheck()
 
-      if (serverResponse.ok) {
-        const { jonConfirmed } = await serverResponse.json();
-
-        if (jonConfirmed) {
-          alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
-        } else {
-          alert("Nu-uh, bad boy!");
-          location.reload(); // Refresh the page
-        }
-      } else {
-        alert("Error confirming access. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error confirming Jon's access:", error);
-      alert("There was an error confirming Jon's access. Please try again.");
     }
-  } else {
-    alert("Nu-uh, bad boy!");
-    location.reload(); // Refresh the page if the user didn't confirm
-  }
-} else {
-  alert(`Welcome, ${name}! You have successfully accessed the protected page.`);
-}
-
-
       // Show Jon's controls for approval
       showJonControls();
     }
