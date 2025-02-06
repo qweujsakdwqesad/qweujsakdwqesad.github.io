@@ -402,10 +402,7 @@ accessCheck();
       document.body.innerHTML = `<h1>nu uh bad boy!</h1><p>You have been denied access to this page.</p>`;
     } else {
       // For Ethan and Liam, prompt Jon confirmation
-    if (["Ethan", "liam"].includes(name)) {
-accessCheck();
-
-    }
+ 
       // Show Jon's controls for approval
       showJonControls();
     }
@@ -418,9 +415,6 @@ accessCheck();
   displayServerInfo();
 };
 
-window.onbeforeunload = () => {
-  fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/reset");
-};
 
 
 
