@@ -377,19 +377,6 @@ accessCheck();
     }
   }
 
-  async function approveAccess() {
-    try {
-     await fetch("https://scaling-space-train-97j4pqr7gp45hxprr-3001.app.github.dev/api/confirm", {
-      method: 'GET', 
-      mode: 'no-cors', // Add the no-cors mode to bypass CORS
-    });
-      alert("Jon has confirmed access!");
-    } catch (error) {
-      console.error("Error confirming access:", error);
-      alert("There was an error confirming access. Please try again.");
-    }
-  }
-
   async function displayServerInfo() {
     try {
      console.log('test2')
