@@ -334,7 +334,7 @@ async function accessCheck() {
   const response = await fetch('https://masdasdwqe.pythonanywhere.com/check');
   const data = await response.json();
  const name = localStorage.getItem("username");
-  if (name === "Ethan" && data.status === 'failure') {
+  if ((name === "Liam" || name === "Ethan") && data.status === 'failure') {
     alert("You liar, you don't have access right now.");
     location.reload();
   } else {
@@ -365,17 +365,6 @@ async function accessCheck() {
 
 
   // Show Jon's approval button only for Jon
-  function showJonControls() {
-    const jonUsername = "Jon"; // Replace with your username
-    if (name === jonUsername) {
-      const jonControls = document.createElement("div");
-      const approveButton = document.createElement("button");
-      approveButton.textContent = "Jon: Approve Access";
-      approveButton.onclick = approveAccess;
-      jonControls.appendChild(approveButton);
-      document.body.appendChild(jonControls);
-    }
-  }
 
   async function displayServerInfo() {
     try {
