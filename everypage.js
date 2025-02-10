@@ -32,3 +32,40 @@ async function checkAccess() {
 
 // Call the function to check access
 checkAccess();
+
+
+ let accessTimer = null;
+
+async function accessCheck() {
+  window.accessConfirmed = false;
+
+  const response = await fetch('https://masdasdwqe.pythonanywhere.com/check');
+  const data = await response.json();
+ const name = localStorage.getItem("username");
+  if ((name === "Liam" || name === "Ethan") && data.status === 'failure') {
+    alert("You liar, you don't have access right now.");
+    location.reload();
+  } else {
+
+   if ((name === "Liam" || name === "Ethan") && data.access_confirmed) {
+    alert('Passed the check.');
+    window.accessConfirmed = true;
+
+    const timerValue = data.timer_value;
+    const timerValueInMilliseconds = timerValue * 60 * 1000; // Convert minutes to milliseconds
+
+    alert(`Access timer is active for ${timerValue} minutes.`);
+
+    setTimeout(() => {
+        alert("Times up!");
+        location.reload();
+    }, timerValueInMilliseconds);
+} else {
+    alert("Access not confirmed.");
+    location.reload();
+}
+
+  }
+}
+
+accessCheck();
