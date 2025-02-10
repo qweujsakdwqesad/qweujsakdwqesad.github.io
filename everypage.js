@@ -65,4 +65,10 @@ async function accessCheck() {
   }
 }
 
-accessCheck();
+const username = localStorage.getItem("username");
+if (username === "Ethan" || username === "Liam") {
+  accessCheck();
+} else {
+  // Continue without performing access check
+  console.log("Username is not Ethan or Liam. Skipping access check.");
+}
