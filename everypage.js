@@ -34,7 +34,16 @@ async function checkAccess() {
 checkAccess();
 
 
-let accessTimer = null;
+
+ let accessTimer = null;
+
+const username = localStorage.getItem("username");
+if (username === "Ethan" || username === "Liam") {
+  accessCheck();
+} else {
+  // Continue without performing access check
+  console.log("Username is not Ethan or Liam. Skipping access check.");
+}
 
 async function accessCheck() {
   window.accessConfirmed = false;
@@ -65,10 +74,3 @@ async function accessCheck() {
   }
 }
 
-const username = localStorage.getItem("username");
-if (username === "Ethan" || username === "Liam") {
-  accessCheck();
-} else {
-  // Continue without performing access check
-  console.log("Username is not Ethan or Liam. Skipping access check.");
-}
